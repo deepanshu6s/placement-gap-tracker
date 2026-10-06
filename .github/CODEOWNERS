@@ -1,0 +1,91 @@
+# ==============================================================================
+# CODEOWNERS - Smart Placement Readiness & Skill Gap Tracker
+# Maps repository directories to module owners (Members 1 - 5)
+# ==============================================================================
+
+# Global fallback / documentation / shared setup
+* @lead-architect @team-lead
+
+# ------------------------------------------------------------------------------
+# Member 1: Authentication + Student Profile + Security Middleware
+# ------------------------------------------------------------------------------
+backend/src/routes/auth.* @member-1
+backend/src/routes/student.* @member-1
+backend/src/controllers/auth.* @member-1
+backend/src/controllers/student.* @member-1
+backend/src/services/auth.* @member-1
+backend/src/services/student.* @member-1
+backend/src/repositories/user.* @member-1
+backend/src/repositories/student.* @member-1
+backend/src/middleware/authenticate.* @member-1
+backend/src/middleware/authorize.* @member-1
+frontend/src/features/auth/ @member-1
+frontend/src/features/profile/ @member-1
+frontend/src/store/authStore.js @member-1
+frontend/src/routes/ProtectedRoute.jsx @member-1
+frontend/src/routes/RoleRoute.jsx @member-1
+
+# ------------------------------------------------------------------------------
+# Member 2: Question Bank + Assessment Engine + Scoring
+# ------------------------------------------------------------------------------
+backend/src/routes/question.* @member-2
+backend/src/routes/assessment.* @member-2
+backend/src/controllers/question.* @member-2
+backend/src/controllers/assessment.* @member-2
+backend/src/services/question.* @member-2
+backend/src/services/assessment.* @member-2
+backend/src/services/scoring.* @member-2
+backend/src/repositories/question.* @member-2
+backend/src/repositories/attempt.* @member-2
+backend/src/repositories/skillScore.* @member-2
+frontend/src/features/assessment/ @member-2
+
+# ------------------------------------------------------------------------------
+# Member 3: Career Roles + Skills + Skill Gap + Readiness Engine
+# ------------------------------------------------------------------------------
+backend/src/routes/role.* @member-3
+backend/src/routes/skill.* @member-3
+backend/src/routes/skillGap.* @member-3
+backend/src/routes/readiness.* @member-3
+backend/src/controllers/role.* @member-3
+backend/src/controllers/skill.* @member-3
+backend/src/controllers/skillGap.* @member-3
+backend/src/controllers/readiness.* @member-3
+backend/src/services/role.* @member-3
+backend/src/services/skill.* @member-3
+backend/src/services/skillGap.* @member-3
+backend/src/services/readiness.* @member-3
+backend/src/repositories/role.* @member-3
+backend/src/repositories/skill.* @member-3
+backend/src/repositories/skillGap.* @member-3
+backend/src/repositories/readiness.* @member-3
+frontend/src/features/skillGap/ @member-3
+
+# ------------------------------------------------------------------------------
+# Member 4: Preparation Tracker + Recommendation Engine
+# ------------------------------------------------------------------------------
+backend/src/routes/preparation.* @member-4
+backend/src/routes/recommendation.* @member-4
+backend/src/controllers/preparation.* @member-4
+backend/src/controllers/recommendation.* @member-4
+backend/src/services/preparation.* @member-4
+backend/src/services/recommendation.* @member-4
+backend/src/repositories/preparation.* @member-4
+backend/src/repositories/recommendation.* @member-4
+frontend/src/features/preparation/ @member-4
+frontend/src/features/recommendations/ @member-4
+
+# ------------------------------------------------------------------------------
+# Member 5: Analytics + Faculty Dashboard + UI Component Library
+# ------------------------------------------------------------------------------
+backend/src/routes/analytics.* @member-5
+backend/src/routes/faculty.* @member-5
+backend/src/controllers/analytics.* @member-5
+backend/src/controllers/faculty.* @member-5
+backend/src/services/analytics.* @member-5
+backend/src/services/facultyAnalytics.* @member-5
+frontend/src/features/studentAnalytics/ @member-5
+frontend/src/features/facultyAnalytics/ @member-5
+frontend/src/components/ui/ @member-5
+frontend/src/components/charts/ @member-5
+frontend/src/store/uiStore.js @member-5

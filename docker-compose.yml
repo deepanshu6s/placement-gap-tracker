@@ -1,0 +1,55 @@
+services:
+  # ============================================================================
+  # PostgreSQL 15 Database Service
+  # ============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: placement_tracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-placement_tracker}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres_password_dev}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-placement_tracker}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Optional Containerized Backend Service (Local Development)
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: placement_tracker_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-placement_tracker}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres_password_dev}
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres_password_dev}@postgres:5432/${DB_NAME:-placement_tracker}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    profiles:
+      - full-docker
+
+volumes:
+  postgres_data:
+    name: placement_tracker_pgdata

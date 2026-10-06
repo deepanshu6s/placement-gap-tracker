@@ -1,0 +1,28 @@
+{
+  "name": "placement-readiness-and-skill-gap-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Placement Readiness & Skill Gap Tracker - Monorepo",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "test:backend": "npm --prefix backend test",
+    "test:frontend": "npm --prefix frontend test",
+    "test": "npm run test:backend && npm run test:frontend",
+    "build:frontend": "npm --prefix frontend run build",
+    "build": "npm run build:frontend",
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
+    "lint": "npm run format:check",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
+  },
+  "keywords": [
+    "placement-readiness",
+    "skill-gap-tracker",
+    "pern-stack"
+  ],
+  "author": "Capston Project Team",
+  "license": "UNLICENSED"
+}
