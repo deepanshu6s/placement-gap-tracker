@@ -12,9 +12,7 @@
 
 The **Smart Placement Readiness & Skill Gap Tracker** empowers students preparing for competitive placement drives through a closed-loop diagnostic and learning cycle:
 
-```text
-Assess ──▶ Analyze ──▶ Identify Gap ──▶ Recommend ──▶ Practice ──▶ Reassess ──▶ Measure Improvement
-```
+
 
 1. **Assess**: Students complete timed, difficulty-balanced MCQ assessments per skill.
 2. **Analyze & Identify Gap**: Evaluates current proficiency against role-specific requirements, calculating clear gap categories (`none`, `small`, `medium`, `critical`).
