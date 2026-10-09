@@ -1,11 +1,21 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
-/**
- * ProtectedRoute Placeholder (Owned by Member 1)
- * Will redirect unauthenticated requests to /login in Phase 2
- */
-export const ProtectedRoute = () => {
-  // Pass-through in Phase 1 foundation to allow structural inspection
+export const ProtectedRoute = ({ allowedRoles = null }) => {
+  const { isAuthenticated, accessToken, user } = useAuthStore();
+  const location = useLocation();
+
+  if (!isAuthenticated || !accessToken) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (allowedRoles && user?.role && !allowedRoles.includes(user.role)) {
+    // If user's role does not match the route, navigate to their respective portal
+    return <Navigate to={user.role === 'faculty' ? '/faculty' : '/student'} replace />;
+  }
+
   return <Outlet />;
 };
+
+export default ProtectedRoute;

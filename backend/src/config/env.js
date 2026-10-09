@@ -14,6 +14,10 @@ const envSchema = z.object({
   DB_USER: z.string().default('postgres'),
   DB_PASSWORD: z.string().default('postgres_password_dev'),
   FRONTEND_URL: z.string().default('http://localhost:5173'),
+  JWT_SECRET: z.string().default('dev-jwt-secret-change-in-production-min32chars!!'),
+  JWT_EXPIRES_IN: z.string().default('15m'),
+  REFRESH_TOKEN_SECRET: z.string().default('dev-refresh-secret-change-in-production-min32chars!!'),
+  REFRESH_TOKEN_EXPIRES_DAYS: z.string().transform(Number).default('7'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

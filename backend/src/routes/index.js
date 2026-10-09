@@ -1,27 +1,34 @@
 const express = require('express');
 const healthRoutes = require('./health.routes');
 
+const authRoutes = require('./auth.routes');
+const studentRoutes = require('./student.routes');
+const roleRoutes = require('./role.routes');
+const skillRoutes = require('./skill.routes');
+const questionRoutes = require('./question.routes'); // <-- Add this
+const assessmentRoutes = require('./assessment.routes');
+const gapRoutes = require('./gap.routes');
+const readinessRoutes = require('./readiness.routes');
+const recommendationRoutes = require('./recommendation.routes');
+const preparationRoutes = require('./preparation.routes');
+const facultyRoutes = require('./faculty.routes');
+
 const router = express.Router();
 
-// =============================================================================
 // Foundation Routes (Phase 1)
-// =============================================================================
 router.use('/health', healthRoutes);
 
-// =============================================================================
-// Feature Routes (Planned for Phase 2+ - see API_CONTRACTS.md)
-// =============================================================================
-// router.use('/auth', authRoutes);                      // Member 1
-// router.use('/students', studentRoutes);              // Member 1
-// router.use('/roles', roleRoutes);                    // Member 3
-// router.use('/skills', skillRoutes);                  // Member 3
-// router.use('/questions', questionRoutes);            // Member 2
-// router.use('/assessments', assessmentRoutes);        // Member 2
-// router.use('/skill-gaps', skillGapRoutes);           // Member 3
-// router.use('/readiness', readinessRoutes);           // Member 3
-// router.use('/preparation', preparationRoutes);       // Member 4
-// router.use('/recommendations', recommendationRoutes); // Member 4
-// router.use('/analytics', analyticsRoutes);           // Member 5
-// router.use('/faculty', facultyRoutes);               // Member 5
+// Feature Routes
+router.use('/auth', authRoutes);
+router.use('/students', studentRoutes);
+router.use('/roles', roleRoutes);
+router.use('/skills', skillRoutes);
+router.use('/questions', questionRoutes); // <-- Add this
+router.use('/assessments', assessmentRoutes);
+router.use('/skill-gaps', gapRoutes);
+router.use('/readiness', readinessRoutes);
+router.use('/recommendations', recommendationRoutes);
+router.use('/preparation', preparationRoutes);
+router.use('/faculty', facultyRoutes);
 
 module.exports = router;

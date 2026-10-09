@@ -1,21 +1,32 @@
 import { create } from 'zustand';
 
 /**
- * Authentication Store Foundation (Owned by Member 1)
- * Manages client user session, role, and in-memory access token
+ * Global Authentication Store
+ * Manages authenticated user state, JWT access token, and active session status
  */
 export const useAuthStore = create((set) => ({
   user: null,
   accessToken: null,
   isAuthenticated: false,
 
-  // Placeholder actions for Phase 2
-  setAuth: (user, accessToken) =>
+  setAuth: (userOrPayload, maybeToken) => {
+    let user = null;
+    let token = null;
+
+    if (maybeToken) {
+      user = userOrPayload;
+      token = maybeToken;
+    } else if (userOrPayload && typeof userOrPayload === 'object') {
+      user = userOrPayload.user || userOrPayload;
+      token = userOrPayload.accessToken || userOrPayload.token || null;
+    }
+
     set({
       user,
-      accessToken,
-      isAuthenticated: Boolean(user && accessToken),
-    }),
+      accessToken: token,
+      isAuthenticated: Boolean(user && token),
+    });
+  },
 
   clearAuth: () =>
     set({
@@ -24,3 +35,5 @@ export const useAuthStore = create((set) => ({
       isAuthenticated: false,
     }),
 }));
+
+export default useAuthStore;

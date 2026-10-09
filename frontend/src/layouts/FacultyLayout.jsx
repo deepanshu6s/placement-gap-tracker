@@ -5,14 +5,16 @@ import { Sidebar } from '../components/layout/Sidebar';
 
 export const FacultyLayout = () => {
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
+    <div className="min-h-screen bg-[#080B12] text-[#F3F7FC] flex flex-col selection:bg-[#42F5E8]/20 selection:text-[#42F5E8]">
       <Navbar />
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-hidden">
         <Sidebar role="faculty" />
-        <div className="flex-1 bg-slate-950 overflow-y-auto">
+        <div className="flex-1 bg-[#080B12] overflow-y-auto">
           <Outlet />
         </div>
       </div>
     </div>
   );
 };
+
+export default FacultyLayout;

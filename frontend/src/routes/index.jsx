@@ -9,6 +9,10 @@ import { DashboardPage as StudentDashboard } from '../pages/student/DashboardPag
 import { FacultyLayout } from '../layouts/FacultyLayout';
 import { FacultyDashboardPage as FacultyDashboard } from '../pages/faculty/FacultyDashboardPage';
 import { ProtectedRoute } from './ProtectedRoute';
+import { ProfileSetupPage } from '../pages/student/ProfileSetupPage';
+import { RolesCataloguePage } from '../pages/student/RolesCataloguePage';
+import { AssessmentPage } from '../pages/student/AssessmentPage';
+import { PreparationPage } from '../pages/student/PreparationPage';
 
 export const router = createBrowserRouter([
   {
@@ -30,7 +34,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/student',
-    element: <ProtectedRoute />,
+    element: <ProtectedRoute allowedRoles={['student']} />,
     children: [
       {
         element: <StudentLayout />,
@@ -38,6 +42,22 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <StudentDashboard />,
+          },
+          {
+            path: 'profile-setup',
+            element: <ProfileSetupPage />,
+          },
+          {
+            path: 'roles',
+            element: <RolesCataloguePage />,
+          },
+          {
+            path: 'assessments/:skillId',
+            element: <AssessmentPage />,
+          },
+          {
+            path: 'preparation',
+            element: <PreparationPage />,
           },
           {
             path: '*',
@@ -49,7 +69,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/faculty',
-    element: <ProtectedRoute />,
+    element: <ProtectedRoute allowedRoles={['faculty', 'admin']} />,
     children: [
       {
         element: <FacultyLayout />,
@@ -71,3 +91,5 @@ export const router = createBrowserRouter([
     element: <Navigate to="/" replace />,
   },
 ]);
+
+export default router;
