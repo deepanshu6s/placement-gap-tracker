@@ -20,6 +20,24 @@ const errorHandler = (err, req, res, next) => {
     return errorResponse(res, 400, 'VALIDATION_ERROR', 'Malformed JSON payload in request body');
   }
 
+  // Handle Database connection failures (ECONNREFUSED, pool timeout)
+  const isDbConnectionError =
+    err.code === 'ECONNREFUSED' ||
+    err.code === 'ETIMEDOUT' ||
+    err.code === '57P01' ||
+    err.code === '57P03' ||
+    (err.name === 'AggregateError' && Array.isArray(err.errors) && err.errors.some((e) => e.code === 'ECONNREFUSED')) ||
+    (typeof err.message === 'string' && err.message.includes('ECONNREFUSED'));
+
+  if (isDbConnectionError) {
+    return errorResponse(
+      res,
+      503,
+      'DATABASE_UNAVAILABLE',
+      'Database connection failed. Please ensure PostgreSQL service is running and accessible.'
+    );
+  }
+
   // Handle explicit application errors with custom status codes
   const statusCode = err.statusCode || 500;
   const errorCode = err.code || 'INTERNAL_ERROR';

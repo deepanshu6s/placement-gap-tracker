@@ -8,13 +8,9 @@ import { Alert } from '../../components/ui/Alert';
 import { roleService, studentService } from '../../services/studentService';
 import {
   Compass,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Layers,
-  Award,
-  Sparkles,
-  ArrowRight,
+  CheckCircle2,
 } from 'lucide-react';
 
 export const RolesCataloguePage = () => {
@@ -47,8 +43,8 @@ export const RolesCataloguePage = () => {
     try {
       await studentService.updateProfile({ target_role_id: roleId });
       setCurrentRoleId(roleId);
-      setActionSuccess(`Target role successfully updated to "${roleName}". Your readiness score has been recalibrated.`);
-      setTimeout(() => setActionSuccess(''), 5000);
+      setActionSuccess(`Target role updated to "${roleName}". Your readiness score has been recalibrated.`);
+      setTimeout(() => setActionSuccess(''), 4500);
     } catch (err) {
       console.error('Failed to switch role', err);
     }
@@ -59,7 +55,7 @@ export const RolesCataloguePage = () => {
       <PageWrapper title="Career Role Catalogue">
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Spinner size="lg" />
-          <p className="text-sm text-[#77869B]">Loading career benchmark pathways...</p>
+          <p className="text-sm text-[#A3978D]">Loading career pathways...</p>
         </div>
       </PageWrapper>
     );
@@ -68,16 +64,16 @@ export const RolesCataloguePage = () => {
   return (
     <PageWrapper
       title="Industry Career Role Catalogue"
-      subtitle="Explore recruitment expectations and benchmark requirements defined by academic and industry experts"
+      subtitle="Benchmark requirements and skill weightings configured for campus placement pathways"
     >
       <div className="space-y-6">
         {actionSuccess && (
-          <Alert variant="success" title="Role Updated">
+          <Alert variant="success" title="Target Role Updated">
             {actionSuccess}
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {roles.map((role) => (
             <RoleCard
               key={role.id}
@@ -115,64 +111,64 @@ const RoleCard = ({ role, isTargetRole, onSelectTarget }) => {
   return (
     <Card
       hover
-      className={`bg-[#111B2D] border transition-all flex flex-col justify-between ${
+      className={`bg-[#191512] border transition-colors flex flex-col justify-between ${
         isTargetRole
-          ? 'border-[#42F5E8]/60 shadow-[0_0_20px_-4px_rgba(66,245,232,0.2)]'
-          : 'border-[#243249]'
+          ? 'border-[#FF6A2A]'
+          : 'border-[#34271F]'
       }`}
     >
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="p-2.5 rounded-xl bg-[#17243A] text-[#42F5E8]">
-            <Compass size={20} />
+          <div className="p-2 rounded-lg bg-[#241B16] text-[#FF6A2A]">
+            <Compass size={18} />
           </div>
           {isTargetRole ? (
-            <Badge variant="cyan" size="sm">
-              Your Current Target
+            <Badge variant="orange" size="sm">
+              Current Target
             </Badge>
           ) : (
             <Button
               variant="ghost"
               size="sm"
               onClick={onSelectTarget}
-              className="text-xs text-[#A6B4C8] hover:text-[#42F5E8]"
+              className="text-xs text-[#C3B7AD] hover:text-[#FF6A2A]"
             >
               Set as Target
             </Button>
           )}
         </div>
 
-        <h3 className="text-lg font-bold text-[#F3F7FC] mb-1.5">{role.name}</h3>
-        <p className="text-sm text-[#A6B4C8] leading-relaxed line-clamp-3">
+        <h3 className="text-base sm:text-lg font-bold text-[#F5F0EB] mb-1.5">{role.name}</h3>
+        <p className="text-xs sm:text-sm text-[#C3B7AD] leading-relaxed line-clamp-3">
           {role.description || 'Comprehensive placement pathway with curated skill criteria.'}
         </p>
       </div>
 
-      <div className="mt-5 pt-4 border-t border-[#243249]">
+      <div className="mt-4 pt-3.5 border-t border-[#34271F]">
         <button
           onClick={handleToggle}
-          className="w-full flex items-center justify-between text-xs font-semibold text-[#42F5E8] hover:text-[#24e8da] transition-colors py-1 focus:outline-none"
+          className="w-full flex items-center justify-between text-xs font-semibold text-[#FF6A2A] hover:text-[#FF7B43] transition-colors py-1 focus:outline-none"
         >
-          <span>{expanded ? 'Hide Required Skills' : 'View Skill Requirements'}</span>
-          {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          <span>{expanded ? 'Hide Required Skills' : 'View Skill Criteria'}</span>
+          {expanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
 
         {expanded && (
-          <div className="mt-3 space-y-2.5 pt-3 border-t border-[#243249]/60 animate-fade-in">
+          <div className="mt-2.5 space-y-2 pt-2.5 border-t border-[#34271F] animate-fade-in">
             {loading ? (
-              <div className="flex justify-center py-4">
+              <div className="flex justify-center py-3">
                 <Spinner size="sm" />
               </div>
             ) : details?.requirements?.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {details.requirements.map((req) => (
                   <div
                     key={req.skill_id}
-                    className="flex items-center justify-between p-2.5 rounded-lg bg-[#0D1320] border border-[#243249] text-xs"
+                    className="flex items-center justify-between p-2 rounded bg-[#14110F] border border-[#34271F] text-xs"
                   >
-                    <span className="font-semibold text-[#F3F7FC]">{req.skill_name}</span>
+                    <span className="font-semibold text-[#F5F0EB]">{req.skill_name}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[#A6B4C8]">Target: {req.required_level}%</span>
+                      <span className="text-[#FFC857]">Req: {req.required_level}%</span>
                       <Badge variant="neutral" size="sm">
                         Weight: {req.weight}
                       </Badge>
@@ -181,7 +177,7 @@ const RoleCard = ({ role, isTargetRole, onSelectTarget }) => {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[#77869B] italic py-2">
+              <p className="text-xs text-[#A3978D] italic py-2">
                 No individual skill requirements configured for this role yet.
               </p>
             )}

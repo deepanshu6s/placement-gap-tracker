@@ -1,5 +1,6 @@
 /**
  * Classifies skill gaps according to architecture specification Section 8
+ * Formatted with warm charcoal-and-orange palette
  */
 export const getGapCategory = (gap) => {
   if (gap <= 0) return 'none';
@@ -10,18 +11,18 @@ export const getGapCategory = (gap) => {
 
 export const getGapBadgeClass = (category, isAssessed = true) => {
   if (!isAssessed) {
-    return 'bg-slate-700 text-slate-300 border-slate-600';
+    return 'bg-[#241B16] text-[#A3978D] border-[#34271F]';
   }
   switch (category) {
     case 'none':
-      return 'bg-emerald-950 text-emerald-400 border-emerald-800';
+      return 'bg-[#191512] text-[#F5F0EB] border-[#34271F]';
     case 'small':
-      return 'bg-blue-950 text-blue-400 border-blue-800';
+      return 'bg-[#241B16] text-[#C3B7AD] border-[#34271F]';
     case 'medium':
-      return 'bg-amber-950 text-amber-400 border-amber-800';
+      return 'bg-[#FFC857]/15 text-[#FFC857] border-[#FFC857]/30';
     case 'critical':
-      return 'bg-rose-950 text-rose-400 border-rose-800';
+      return 'bg-[#FF526F]/15 text-[#FF526F] border-[#FF526F]/30';
     default:
-      return 'bg-slate-800 text-slate-300 border-slate-700';
+      return 'bg-[#191512] text-[#C3B7AD] border-[#34271F]';
   }
 };

@@ -5,7 +5,6 @@ import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Alert } from '../../components/ui/Alert';
-import { Badge } from '../../components/ui/Badge';
 import { Spinner } from '../../components/ui/Spinner';
 import { studentService, roleService } from '../../services/studentService';
 import { useAuthStore } from '../../store/authStore';
@@ -13,10 +12,7 @@ import {
   User,
   GraduationCap,
   Briefcase,
-  Sparkles,
   ArrowRight,
-  CheckCircle2,
-  BookOpen,
 } from 'lucide-react';
 
 export const ProfileSetupPage = () => {
@@ -86,7 +82,7 @@ export const ProfileSetupPage = () => {
     if (loading) return;
 
     if (!formData.full_name.trim() || !formData.roll_number.trim() || !formData.target_role_id) {
-      setError('Please fill in your name, roll number, and choose your target career role.');
+      setError('Please provide your name, roll number, and choose your target career role.');
       return;
     }
 
@@ -112,7 +108,10 @@ export const ProfileSetupPage = () => {
 
       navigate('/student', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.error?.message || 'Failed to save student profile. Please verify your details.');
+      setError(
+        err.response?.data?.error?.message ||
+          'Failed to save student profile. Please verify your details.'
+      );
     } finally {
       setLoading(false);
     }
@@ -123,7 +122,7 @@ export const ProfileSetupPage = () => {
       <PageWrapper title="Academic Profile Setup">
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Spinner size="lg" />
-          <p className="text-sm text-[#77869B]">Loading available role catalogue...</p>
+          <p className="text-sm text-[#A3978D]">Loading profile information...</p>
         </div>
       </PageWrapper>
     );
@@ -134,26 +133,26 @@ export const ProfileSetupPage = () => {
       title="Academic Profile &amp; Role Setup"
       subtitle="Complete your student credentials and choose your target career benchmark"
     >
-      <div className="max-w-3xl mx-auto w-full">
-        <Card className="bg-[#111B2D] border-[#243249]">
+      <div className="max-w-2xl mx-auto w-full">
+        <Card className="bg-[#191512] border-[#34271F]">
           {error && (
-            <Alert variant="error" title="Setup Incomplete" className="mb-6">
+            <Alert variant="error" title="Setup Incomplete" className="mb-5">
               {error}
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Step 1: Academic Identification */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Section 1: Academic Identification */}
             <div>
-              <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#243249]">
-                <GraduationCap size={18} className="text-[#42F5E8]" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#F3F7FC]">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#34271F]">
+                <GraduationCap size={16} className="text-[#FF6A2A]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#F5F0EB]">
                   1. Academic Information
                 </h3>
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <Input
                     id="full_name"
                     label="Full Name"
@@ -176,21 +175,21 @@ export const ProfileSetupPage = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   <div>
-                    <label htmlFor="branch" className="block text-sm font-medium text-[#F3F7FC] mb-2">
-                      Department / Branch
+                    <label htmlFor="branch" className="block text-xs sm:text-sm font-medium text-[#F5F0EB] mb-1.5">
+                      Department
                     </label>
                     <select
                       id="branch"
                       value={formData.branch}
                       onChange={handleChange}
                       disabled={loading}
-                      className="w-full bg-[#0D1320] border border-[#243249] hover:border-[#364A6B] focus:border-[#42F5E8] focus:ring-2 focus:ring-[#42F5E8]/20 rounded-lg px-4 py-2.5 text-[#F3F7FC] text-sm md:text-base focus:outline-none transition-all duration-200"
+                      className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg px-3 py-2 text-[#F5F0EB] text-sm focus:outline-none transition-all duration-150"
                     >
                       <option value="CS">Computer Science (CS)</option>
-                      <option value="IT">Information Technology (IT)</option>
-                      <option value="ECE">Electronics &amp; Comm. (ECE)</option>
+                      <option value="IT">Information Tech (IT)</option>
+                      <option value="ECE">Electronics (ECE)</option>
                       <option value="EE">Electrical (EE)</option>
                       <option value="MECH">Mechanical (MECH)</option>
                       <option value="OTHER">Other Engineering</option>
@@ -225,26 +224,26 @@ export const ProfileSetupPage = () => {
               </div>
             </div>
 
-            {/* Step 2: Target Career Pathway */}
+            {/* Section 2: Target Career Pathway */}
             <div>
-              <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#243249]">
-                <Briefcase size={18} className="text-[#C4FF58]" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-[#F3F7FC]">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#34271F]">
+                <Briefcase size={16} className="text-[#FFC857]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#F5F0EB]">
                   2. Target Career Pathway
                 </h3>
               </div>
 
-              <div className="space-y-3">
-                <label htmlFor="target_role_id" className="block text-sm font-medium text-[#F3F7FC]">
+              <div className="space-y-2">
+                <label htmlFor="target_role_id" className="block text-xs sm:text-sm font-medium text-[#F5F0EB]">
                   Select Target Recruitment Role
                 </label>
-                <p className="text-xs text-[#A6B4C8] mb-2">
-                  Your skill gap analysis and readiness calculations will be benchmarked against this role's specific requirements.
+                <p className="text-xs text-[#A3978D]">
+                  Your skill gap analysis and readiness calculations will be benchmarked against this role.
                 </p>
 
                 <select
                   id="target_role_id"
-                  className="w-full bg-[#0D1320] border border-[#243249] hover:border-[#364A6B] focus:border-[#42F5E8] focus:ring-2 focus:ring-[#42F5E8]/20 rounded-lg px-4 py-3 text-[#F3F7FC] text-sm md:text-base focus:outline-none transition-all duration-200"
+                  className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg px-3.5 py-2.5 text-[#F5F0EB] text-sm focus:outline-none transition-all duration-150"
                   value={formData.target_role_id}
                   onChange={handleChange}
                   required
@@ -260,10 +259,10 @@ export const ProfileSetupPage = () => {
               </div>
             </div>
 
-            {/* Form Submit */}
-            <div className="pt-4 border-t border-[#243249] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-xs text-[#77869B]">
-                You can adjust your target role at any time from the role catalogue.
+            {/* Submit Bar */}
+            <div className="pt-4 border-t border-[#34271F] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span className="text-xs text-[#A3978D]">
+                You can change your target role later from the role catalogue.
               </span>
 
               <Button

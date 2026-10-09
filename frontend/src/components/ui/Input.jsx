@@ -13,29 +13,29 @@ export const Input = ({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-[#F3F7FC] mb-2">
+        <label htmlFor={id} className="block text-xs sm:text-sm font-medium text-[#F5F0EB] mb-1.5">
           {label}
         </label>
       )}
       <div className="relative">
         {Icon && (
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#77869B]">
-            <Icon size={18} />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A3978D]">
+            <Icon size={17} />
           </div>
         )}
         <input
           id={id}
           type={type}
-          className={`w-full bg-[#0D1320] border ${
+          className={`w-full bg-[#14110F] border ${
             error
-              ? 'border-[#FB7185] focus:border-[#FB7185] focus:ring-[#FB7185]/20'
-              : 'border-[#243249] hover:border-[#364A6B] focus:border-[#42F5E8] focus:ring-[#42F5E8]/20'
-          } rounded-lg ${Icon ? 'pl-10 pr-4' : 'px-4'} py-2.5 text-[#F3F7FC] placeholder-[#77869B] text-sm md:text-base focus:outline-none focus:ring-2 transition-all duration-200 disabled:opacity-50 disabled:bg-[#080B12] ${className}`}
+              ? 'border-[#FF526F] focus:border-[#FF526F] focus:ring-[#FF526F]/20'
+              : 'border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-[#FF6A2A]/20'
+          } rounded-lg ${Icon ? 'pl-10 pr-3.5' : 'px-3.5'} py-2 text-[#F5F0EB] placeholder-[#A3978D] text-sm focus:outline-none focus:ring-2 transition-all duration-150 disabled:opacity-50 disabled:bg-[#0A0908] ${className}`}
           {...props}
         />
       </div>
-      {error && <p className="mt-1.5 text-xs font-medium text-[#FB7185]">{error}</p>}
-      {!error && helperText && <p className="mt-1.5 text-xs text-[#77869B]">{helperText}</p>}
+      {error && <p className="mt-1 text-xs font-medium text-[#FF526F]">{error}</p>}
+      {!error && helperText && <p className="mt-1 text-xs text-[#A3978D]">{helperText}</p>}
     </div>
   );
 };

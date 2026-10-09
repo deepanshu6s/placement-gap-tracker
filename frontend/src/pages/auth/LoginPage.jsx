@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -7,11 +7,10 @@ import { Alert } from '../../components/ui/Alert';
 import { authService } from '../../services/authService';
 import { studentService } from '../../services/studentService';
 import { useAuthStore } from '../../store/authStore';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const [email, setEmail] = useState('');
@@ -66,7 +65,11 @@ export const LoginPage = () => {
         err.response?.data?.error?.message ||
         (err.response?.status === 401
           ? 'Invalid credentials or inactive account. Please check your email and password.'
-          : err.message || 'Login failed. Please try again.');
+          : err.response?.status === 503
+          ? 'Database service is currently unavailable. Please verify that PostgreSQL is running.'
+          : err.message === 'Network Error' || !err.response
+          ? 'Unable to connect to the backend server. Please verify the API server is running.'
+          : 'Login failed. Please try again.');
       setError(serverMsg);
     } finally {
       setLoading(false);
@@ -75,11 +78,11 @@ export const LoginPage = () => {
 
   return (
     <Card
-      title="Sign In to Your Portal"
-      subtitle="Access your placement readiness score and skill gap diagnostic reports"
-      className="bg-[#111B2D] border-[#243249]"
+      title="Sign In"
+      subtitle="Access your placement readiness score and diagnostic reports"
+      className="bg-[#191512] border-[#34271F]"
     >
-      <div className="space-y-5">
+      <div className="space-y-4">
         {error && (
           <Alert variant="error" title="Authentication Failed">
             {error}
@@ -101,12 +104,12 @@ export const LoginPage = () => {
           />
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="block text-sm font-medium text-[#F3F7FC]">
-              Account Password
+            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-[#F5F0EB]">
+              Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#77869B]">
-                <Lock size={18} />
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A3978D]">
+                <Lock size={17} />
               </div>
               <input
                 id="password"
@@ -117,15 +120,15 @@ export const LoginPage = () => {
                 required
                 autoComplete="current-password"
                 disabled={loading}
-                className="w-full bg-[#0D1320] border border-[#243249] hover:border-[#364A6B] focus:border-[#42F5E8] focus:ring-2 focus:ring-[#42F5E8]/20 rounded-lg pl-10 pr-10 py-2.5 text-[#F3F7FC] placeholder-[#77869B] text-sm md:text-base focus:outline-none transition-all duration-200"
+                className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg pl-10 pr-10 py-2 text-[#F5F0EB] placeholder-[#A3978D] text-sm focus:outline-none transition-all duration-150"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#77869B] hover:text-[#F3F7FC] transition-colors focus:outline-none"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#A3978D] hover:text-[#F5F0EB] transition-colors focus:outline-none"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
@@ -138,17 +141,17 @@ export const LoginPage = () => {
             disabled={loading}
             icon={loading ? undefined : ArrowRight}
           >
-            {loading ? 'Authenticating Credentials...' : 'Sign In'}
+            {loading ? 'Authenticating...' : 'Sign In'}
           </Button>
         </form>
 
-        <div className="pt-4 border-t border-[#243249] flex flex-col sm:flex-row items-center justify-between text-xs text-[#A6B4C8] gap-2">
-          <span>New student to the tracker?</span>
+        <div className="pt-3 border-t border-[#34271F] flex flex-col sm:flex-row items-center justify-between text-xs text-[#C3B7AD] gap-2">
+          <span>New to PlacementTracker?</span>
           <Link
             to="/register"
-            className="text-[#42F5E8] hover:text-[#24e8da] font-semibold hover:underline inline-flex items-center gap-1"
+            className="text-[#FF6A2A] hover:text-[#FF7B43] font-semibold hover:underline inline-flex items-center gap-1"
           >
-            Create Account <ArrowRight size={13} />
+            Create Student Account <ArrowRight size={13} />
           </Link>
         </div>
       </div>

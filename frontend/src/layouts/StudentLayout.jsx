@@ -5,11 +5,11 @@ import { Sidebar } from '../components/layout/Sidebar';
 
 export const StudentLayout = () => {
   return (
-    <div className="min-h-screen bg-[#080B12] text-[#F3F7FC] flex flex-col selection:bg-[#42F5E8]/20 selection:text-[#42F5E8]">
+    <div className="min-h-screen bg-[#0A0908] text-[#F5F0EB] flex flex-col selection:bg-[#FF6A2A]/20 selection:text-[#FF6A2A]">
       <Navbar />
       <div className="flex-1 flex overflow-hidden">
         <Sidebar role="student" />
-        <div className="flex-1 bg-[#080B12] overflow-y-auto">
+        <div className="flex-1 bg-[#0A0908] overflow-y-auto">
           <Outlet />
         </div>
       </div>

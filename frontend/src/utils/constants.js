@@ -15,10 +15,10 @@ export const GAP_LABELS = {
 };
 
 export const READINESS_LABELS = [
-  { min: 93, label: 'Highly Ready', color: 'emerald' },
-  { min: 81, label: 'Ready', color: 'green' },
-  { min: 66, label: 'Almost Ready', color: 'lime' },
-  { min: 46, label: 'Developing', color: 'amber' },
-  { min: 21, label: 'Early Stage', color: 'orange' },
-  { min: 0, label: 'Not Ready', color: 'red' },
+  { min: 90, label: 'Placement Ready', badge: 'orange' },
+  { min: 75, label: 'High Readiness', badge: 'orange' },
+  { min: 60, label: 'Moderate Readiness', badge: 'amber' },
+  { min: 40, label: 'Developing', badge: 'amber' },
+  { min: 20, label: 'Early Stage', badge: 'coral' },
+  { min: 0, label: 'Needs Preparation', badge: 'coral' },
 ];

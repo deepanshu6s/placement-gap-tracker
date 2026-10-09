@@ -10,13 +10,9 @@ import { preparationService } from '../../services/preparationService';
 import {
   CalendarCheck,
   Clock,
-  BookOpen,
   ExternalLink,
   Plus,
-  Sparkles,
   Lock,
-  Calendar,
-  CheckCircle2,
 } from 'lucide-react';
 
 export const PreparationPage = () => {
@@ -79,7 +75,7 @@ export const PreparationPage = () => {
         setLogs([newLog, ...logs]);
       }
 
-      setSuccessMsg('Preparation activity logged successfully.');
+      setSuccessMsg('Preparation activity recorded successfully.');
       setTimeout(() => setSuccessMsg(''), 4000);
 
       // Reset form defaults
@@ -105,7 +101,7 @@ export const PreparationPage = () => {
       <PageWrapper title="Preparation Tracker">
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Spinner size="lg" />
-          <p className="text-sm text-[#77869B]">Loading activity timeline...</p>
+          <p className="text-sm text-[#A3978D]">Loading activity history...</p>
         </div>
       </PageWrapper>
     );
@@ -116,68 +112,68 @@ export const PreparationPage = () => {
       title="Student Preparation Tracker"
       subtitle="Log your self-study routines, mock tests, and practice hours"
       badge={
-        <Badge variant="cyan" size="md">
+        <Badge variant="orange" size="md">
           {totalHours.toFixed(1)} Total Hours Recorded
         </Badge>
       }
     >
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Quick Top Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Total Hours
               </span>
-              <div className="p-2 rounded-lg bg-[#42F5E8]/10 text-[#42F5E8]">
-                <Clock size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+                <Clock size={16} />
               </div>
             </div>
-            <div className="mt-3 text-3xl font-extrabold text-[#F3F7FC]">
+            <div className="mt-2.5 text-3xl font-extrabold text-[#F5F0EB]">
               {totalHours.toFixed(1)}h
             </div>
-            <p className="text-xs text-[#77869B] mt-1">Logged study commitment</p>
+            <p className="text-xs text-[#A3978D] mt-1">Logged study commitment</p>
           </Card>
 
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Total Entries
               </span>
-              <div className="p-2 rounded-lg bg-[#C4FF58]/10 text-[#C4FF58]">
-                <CalendarCheck size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FFC857]">
+                <CalendarCheck size={16} />
               </div>
             </div>
-            <div className="mt-3 text-3xl font-extrabold text-[#F3F7FC]">
+            <div className="mt-2.5 text-3xl font-extrabold text-[#F5F0EB]">
               {logs.length}
             </div>
-            <p className="text-xs text-[#77869B] mt-1">Activities recorded</p>
+            <p className="text-xs text-[#A3978D] mt-1">Activities recorded</p>
           </Card>
 
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Data Privacy
               </span>
-              <div className="p-2 rounded-lg bg-[#4ADE80]/10 text-[#4ADE80]">
-                <Lock size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+                <Lock size={16} />
               </div>
             </div>
-            <div className="mt-3 text-lg font-bold text-[#F3F7FC]">
+            <div className="mt-2.5 text-lg font-bold text-[#F5F0EB]">
               100% Private Notes
             </div>
-            <p className="text-xs text-[#77869B] mt-1">Faculty views aggregates only</p>
+            <p className="text-xs text-[#A3978D] mt-1">Faculty views aggregates only</p>
           </Card>
         </div>
 
         {/* Form and Activity List */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Form Column */}
           <div className="lg:col-span-5">
             <Card
               title="Log Study Activity"
-              subtitle="Keep record of personal problem solving and resource reviews"
-              className="bg-[#111B2D] border-[#243249]"
+              subtitle="Record personal problem solving and learning resource reviews"
+              className="bg-[#191512] border-[#34271F]"
             >
               {error && (
                 <Alert variant="error" className="mb-4">
@@ -192,12 +188,12 @@ export const PreparationPage = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="activity_type" className="block text-sm font-medium text-[#F3F7FC] mb-2">
+                  <label htmlFor="activity_type" className="block text-xs sm:text-sm font-medium text-[#F5F0EB] mb-1.5">
                     Activity Type
                   </label>
                   <select
                     id="activity_type"
-                    className="w-full bg-[#0D1320] border border-[#243249] hover:border-[#364A6B] focus:border-[#42F5E8] focus:ring-2 focus:ring-[#42F5E8]/20 rounded-lg px-4 py-2.5 text-[#F3F7FC] text-sm focus:outline-none transition-all duration-200"
+                    className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg px-3.5 py-2 text-[#F5F0EB] text-sm focus:outline-none transition-all duration-150"
                     value={formData.activity_type}
                     onChange={handleChange}
                     required
@@ -211,7 +207,7 @@ export const PreparationPage = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <Input
                     id="activity_date"
                     label="Date"
@@ -237,7 +233,7 @@ export const PreparationPage = () => {
                 <Input
                   id="description"
                   label="Private Session Notes"
-                  placeholder="e.g. Solved LeetCode graph traversal problems"
+                  placeholder="e.g. Solved LeetCode tree traversal problems"
                   value={formData.description}
                   onChange={handleChange}
                   helperText="These notes are confidential to your student account."
@@ -271,21 +267,21 @@ export const PreparationPage = () => {
             <Card
               title="Activity History"
               subtitle="Chronological list of all logged preparation sessions"
-              className="bg-[#111B2D] border-[#243249]"
+              className="bg-[#191512] border-[#34271F]"
             >
               {logs.length > 0 ? (
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   {logs.map((log) => (
                     <div
                       key={log.id}
-                      className="p-4 rounded-xl bg-[#0D1320] border border-[#243249] hover:border-[#364A6B] transition-all"
+                      className="p-3.5 rounded-lg bg-[#14110F] border border-[#34271F] hover:border-[#65402C] transition-colors"
                     >
                       <div className="flex items-center justify-between gap-3 mb-2">
                         <div className="flex items-center gap-2">
-                          <Badge variant="cyan" size="sm">
+                          <Badge variant="orange" size="sm">
                             {log.activity_type?.replace('_', ' ')}
                           </Badge>
-                          <span className="text-xs text-[#77869B]">
+                          <span className="text-xs text-[#A3978D]">
                             {new Date(log.activity_date).toLocaleDateString(undefined, {
                               weekday: 'short',
                               year: 'numeric',
@@ -294,31 +290,31 @@ export const PreparationPage = () => {
                             })}
                           </span>
                         </div>
-                        <span className="text-xs font-bold text-[#42F5E8] bg-[#17243A] px-2.5 py-1 rounded-md border border-[#243249]">
+                        <span className="text-xs font-semibold text-[#FF6A2A] bg-[#241B16] px-2.5 py-0.5 rounded border border-[#34271F]">
                           {log.hours_spent} Hours
                         </span>
                       </div>
 
                       {log.description ? (
-                        <p className="text-sm text-[#F3F7FC] mb-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-[#F5F0EB] mb-2 leading-relaxed">
                           {log.description}
                         </p>
                       ) : (
-                        <p className="text-xs text-[#77869B] italic mb-2">
+                        <p className="text-xs text-[#A3978D] italic mb-2">
                           No private notes recorded.
                         </p>
                       )}
 
                       {log.resource_url && (
-                        <div className="pt-2 border-t border-[#243249]/60 flex items-center justify-between text-xs">
+                        <div className="pt-2 border-t border-[#34271F] flex items-center justify-between text-xs">
                           <a
                             href={log.resource_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-[#60A5FA] hover:underline font-semibold"
+                            className="inline-flex items-center gap-1.5 text-[#FF6A2A] hover:text-[#FF7B43] hover:underline font-medium"
                           >
                             <span>Study Material Link</span>
-                            <ExternalLink size={13} />
+                            <ExternalLink size={12} />
                           </a>
                         </div>
                       )}
@@ -326,11 +322,11 @@ export const PreparationPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="py-14 text-center text-[#77869B] border border-dashed border-[#243249] rounded-xl">
-                  <CalendarCheck size={40} className="mx-auto text-[#77869B] mb-3" />
-                  <p className="text-base font-semibold text-[#F3F7FC]">No Preparation Logged Yet</p>
-                  <p className="text-xs text-[#77869B] max-w-sm mx-auto mt-1">
-                    Track your daily technical practice to build placement readiness momentum and keep an accurate record.
+                <div className="py-12 text-center text-[#A3978D] border border-dashed border-[#34271F] rounded-lg">
+                  <CalendarCheck size={36} className="mx-auto text-[#A3978D] mb-2" />
+                  <p className="text-sm font-semibold text-[#F5F0EB]">No Preparation Logged Yet</p>
+                  <p className="text-xs text-[#A3978D] max-w-sm mx-auto mt-1">
+                    Track your technical practice to build placement readiness momentum and keep an accurate record.
                   </p>
                 </div>
               )}

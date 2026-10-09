@@ -16,6 +16,7 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
+  Tooltip,
 } from 'recharts';
 import {
   Target,
@@ -25,11 +26,10 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle2,
-  ArrowRight,
-  TrendingUp,
-  Sparkles,
   Compass,
   Award,
+  ArrowRight,
+  Plus,
 } from 'lucide-react';
 
 export const DashboardPage = () => {
@@ -87,22 +87,25 @@ export const DashboardPage = () => {
 
   if (loading) {
     return (
-      <PageWrapper title="Diagnostic Dashboard">
-        <div className="flex flex-col items-center justify-center py-28 gap-4">
+      <PageWrapper title="Student Dashboard">
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Spinner size="lg" />
-          <p className="text-sm text-[#77869B] animate-pulse">Calculating readiness metrics...</p>
+          <p className="text-sm text-[#A3978D]">Calculating placement readiness metrics...</p>
         </div>
       </PageWrapper>
     );
   }
 
   // Calculate real metrics from API responses
-  const readinessScore = readiness?.score !== null && readiness?.score !== undefined ? Math.round(readiness.score) : null;
-  const criticalGapsCount = gaps.filter((g) => g.gap_category === 'critical' || g.gap_value > 35).length;
+  const readinessScore =
+    readiness?.score !== null && readiness?.score !== undefined ? Math.round(readiness.score) : null;
+  const criticalGapsCount = gaps.filter(
+    (g) => g.gap_category === 'critical' || (g.gap_value !== undefined && g.gap_value > 35)
+  ).length;
   const assessedSkillsCount = gaps.filter((g) => g.is_assessed || g.current_score > 0).length;
   const totalLoggedHours = prepLogs.reduce((sum, l) => sum + (parseFloat(l.hours_spent) || 0), 0);
 
-  // Radar data formatting
+  // Radar data formatting for Recharts
   const radarData = gaps.map((g) => ({
     subject: g.skill_name || 'Skill',
     current: Math.round(g.current_score || 0),
@@ -110,25 +113,15 @@ export const DashboardPage = () => {
     fullMark: 100,
   }));
 
-  const getSeverityBadgeVariant = (category) => {
-    switch (category) {
-      case 'critical':
-        return 'danger';
-      case 'medium':
-        return 'warning';
-      case 'small':
-        return 'cyan';
-      default:
-        return 'success';
-    }
-  };
+  const isRoleWithoutSkills = readiness?.status === 'ROLE_HAS_NO_SKILLS' || gaps.length === 0;
+  const isUnassessed = gaps.length > 0 && assessedSkillsCount === 0;
 
   return (
     <PageWrapper
-      title={`Welcome back, ${profile?.full_name || 'Student'}`}
-      subtitle={`Target Role: ${profile?.target_role_name || 'Not Selected'} • Roll: ${profile?.roll_number || 'N/A'}`}
+      title={`Hello, ${profile?.full_name || 'Student'}`}
+      subtitle={`Target Role: ${profile?.target_role_name || 'Not Configured'} • Roll: ${profile?.roll_number || 'N/A'}`}
       badge={
-        <Badge variant={readinessScore !== null && readinessScore >= 75 ? 'lime' : 'cyan'}>
+        <Badge variant="orange" size="sm">
           {profile?.branch} &bull; Batch {profile?.batch_year}
         </Badge>
       }
@@ -140,211 +133,282 @@ export const DashboardPage = () => {
         </Link>
       }
     >
-      <div className="space-y-8 w-full">
+      <div className="space-y-6 sm:space-y-8 w-full">
         {error && (
           <Alert variant="warning" title="Notice">
             {error}
           </Alert>
         )}
 
-        {readiness?.status === 'ROLE_HAS_NO_SKILLS' && (
+        {/* Role has no configured skills */}
+        {isRoleWithoutSkills && (
           <Alert variant="warning" title="No Skill Requirements Defined">
-            Your selected role ({profile?.target_role_name}) currently has no skill requirements configured by faculty. Please select another role from the catalogue to begin assessments.
+            Your selected target role ({profile?.target_role_name || 'Current Role'}) has no skill criteria configured by faculty administrators yet. Please select an active role from the catalogue to begin assessments and track readiness.
+            <div className="mt-3">
+              <Link to="/student/roles">
+                <Button variant="secondary" size="sm" icon={Compass}>
+                  Open Career Role Catalogue
+                </Button>
+              </Link>
+            </div>
+          </Alert>
+        )}
+
+        {/* Role has skills but student hasn't taken any assessments */}
+        {!isRoleWithoutSkills && isUnassessed && (
+          <Alert variant="info" title="Take Your First Skill Assessment">
+            You haven't assessed any skills for this role yet. Complete your first diagnostic test to establish your scores and calculate your readiness percentage.
           </Alert>
         )}
 
         {/* ========================================================================= */}
-        {/* EXECUTIVE SUMMARY STATS (REAL API BACKED) */}
+        {/* FOUR SUMMARY METRIC CARDS */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Card 1: Readiness Score */}
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {/* Card 1: Placement Readiness */}
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Placement Readiness
               </span>
-              <div className="p-2 rounded-lg bg-[#42F5E8]/10 text-[#42F5E8]">
-                <Award size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+                <Award size={16} />
               </div>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-extrabold text-[#F3F7FC] tracking-tight">
+            <div className="mt-2.5 flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold text-[#F5F0EB] tracking-tight">
                 {readinessScore !== null ? `${readinessScore}%` : 'N/A'}
               </span>
-              <span className="text-xs text-[#A6B4C8]">
+              <span className="text-xs text-[#C3B7AD]">
                 {readinessScore !== null ? 'Weighted Score' : 'Awaiting Tests'}
               </span>
             </div>
-            <div className="mt-3 w-full bg-[#17243A] h-2 rounded-full overflow-hidden">
+            <div className="mt-3 w-full bg-[#241B16] h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-gradient-to-r from-[#42F5E8] to-[#C4FF58] h-full transition-all duration-500"
+                className="bg-[#FF6A2A] h-full transition-all duration-300"
                 style={{ width: `${Math.min(100, readinessScore || 0)}%` }}
               />
             </div>
           </Card>
 
-          {/* Card 2: Critical Gaps */}
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+          {/* Card 2: Critical Skill Gaps */}
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Critical Skill Gaps
               </span>
-              <div className="p-2 rounded-lg bg-[#FB7185]/10 text-[#FB7185]">
-                <AlertTriangle size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FF526F]">
+                <AlertTriangle size={16} />
               </div>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-extrabold text-[#FB7185] tracking-tight">
+            <div className="mt-2.5 flex items-baseline gap-2">
+              <span
+                className={`text-3xl font-extrabold tracking-tight ${
+                  criticalGapsCount > 0 ? 'text-[#FF526F]' : 'text-[#F5F0EB]'
+                }`}
+              >
                 {criticalGapsCount}
               </span>
-              <span className="text-xs text-[#A6B4C8]">High Priority Areas</span>
+              <span className="text-xs text-[#C3B7AD]">
+                {criticalGapsCount === 1 ? 'High Priority Area' : 'High Priority Areas'}
+              </span>
             </div>
-            <p className="mt-3 text-xs text-[#77869B]">
+            <p className="mt-3 text-xs text-[#A3978D]">
               {criticalGapsCount === 0
                 ? 'No critical deficiencies identified'
-                : 'Requires targeted practice before placement tests'}
+                : 'Deficiency > 35% against role benchmark'}
             </p>
           </Card>
 
           {/* Card 3: Skills Assessed */}
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Skills Evaluated
               </span>
-              <div className="p-2 rounded-lg bg-[#C4FF58]/10 text-[#C4FF58]">
-                <Brain size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FFC857]">
+                <Brain size={16} />
               </div>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-extrabold text-[#F3F7FC] tracking-tight">
+            <div className="mt-2.5 flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold text-[#F5F0EB] tracking-tight">
                 {assessedSkillsCount}{' '}
-                <span className="text-xl text-[#77869B] font-normal">/ {gaps.length}</span>
+                <span className="text-lg text-[#A3978D] font-normal">/ {gaps.length}</span>
               </span>
-              <span className="text-xs text-[#A6B4C8]">Role Skills</span>
+              <span className="text-xs text-[#C3B7AD]">Role Skills</span>
             </div>
-            <p className="mt-3 text-xs text-[#77869B]">
-              {gaps.length > 0 && assessedSkillsCount === gaps.length
-                ? 'All required skills assessed'
+            <p className="mt-3 text-xs text-[#A3978D]">
+              {gaps.length === 0
+                ? 'No required skills defined'
+                : assessedSkillsCount === gaps.length
+                ? 'All required skills evaluated'
                 : `${gaps.length - assessedSkillsCount} skill(s) pending assessment`}
             </p>
           </Card>
 
-          {/* Card 4: Logged Prep Time */}
-          <Card hover className="bg-[#111B2D] border-[#243249]">
+          {/* Card 4: Logged Preparation */}
+          <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#77869B] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
                 Logged Preparation
               </span>
-              <div className="p-2 rounded-lg bg-[#60A5FA]/10 text-[#60A5FA]">
-                <Clock size={18} />
+              <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+                <Clock size={16} />
               </div>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-extrabold text-[#F3F7FC] tracking-tight">
-                {totalLoggedHours}h
+            <div className="mt-2.5 flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold text-[#F5F0EB] tracking-tight">
+                {totalLoggedHours.toFixed(1)}h
               </span>
-              <span className="text-xs text-[#A6B4C8]">{prepLogs.length} Activities Logged</span>
+              <span className="text-xs text-[#C3B7AD]">{prepLogs.length} sessions</span>
             </div>
             <div className="mt-3 flex items-center justify-between text-xs">
-              <Link to="/student/preparation" className="text-[#42F5E8] hover:underline font-semibold">
-                + Log Practice Hours
+              <Link
+                to="/student/preparation"
+                className="text-[#FF6A2A] hover:text-[#FF7B43] font-semibold inline-flex items-center gap-1"
+              >
+                <Plus size={13} /> Log Practice Hours
               </Link>
             </div>
           </Card>
         </div>
 
         {/* ========================================================================= */}
-        {/* RADAR VISUALIZATION & READINESS GAUGE */}
+        {/* TWO-COLUMN WORKSPACE: SECTION A (READINESS & GAPS) & SECTION B (RECOMMENDATIONS) */}
         {/* ========================================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          {/* Left: Circular Readiness Gauge */}
-          <div className="lg:col-span-5 flex flex-col">
+          {/* Section A: Role Competency Benchmark Radar */}
+          <div className="lg:col-span-7 flex flex-col">
             <Card
-              title="Target Role Alignment"
-              subtitle={`Computed for ${profile?.target_role_name || 'selected role'}`}
-              className="bg-[#111B2D] border-[#243249] flex-1 flex flex-col"
+              title="Skill Benchmark Comparison"
+              subtitle={`Your current evaluation scores vs requirements for ${profile?.target_role_name || 'Role'}`}
+              className="bg-[#191512] border-[#34271F] flex-1 flex flex-col"
             >
-              <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
-                <div className="relative flex items-center justify-center w-48 h-48 rounded-full border-8 border-[#17243A] bg-[#0D1320] shadow-[0_0_30px_-5px_rgba(66,245,232,0.15)]">
-                  {readinessScore !== null ? (
-                    <div className="flex flex-col items-center">
-                      <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#42F5E8] to-[#C4FF58] tracking-tight">
-                        {readinessScore}%
-                      </span>
-                      <span className="text-xs text-[#A6B4C8] uppercase font-bold tracking-wider mt-1">
-                        Readiness
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center px-4">
-                      <span className="text-sm font-semibold text-[#77869B]">No Score Yet</span>
-                      <span className="text-xs text-[#77869B] mt-1">Take assessments to generate score</span>
-                    </div>
-                  )}
-                </div>
+              {radarData.length > 0 ? (
+                <div className="flex-1 flex flex-col justify-between">
+                  <div className="h-64 sm:h-72 w-full mt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
+                        <PolarGrid stroke="#34271F" />
+                        <PolarAngleAxis
+                          dataKey="subject"
+                          tick={{ fill: '#C3B7AD', fontSize: 11, fontWeight: 500 }}
+                        />
+                        <PolarRadiusAxis
+                          angle={30}
+                          domain={[0, 100]}
+                          tick={{ fill: '#A3978D', fontSize: 10 }}
+                          stroke="#34271F"
+                        />
+                        <Radar
+                          name="Role Benchmark"
+                          dataKey="required"
+                          stroke="#FFC857"
+                          fill="#FFC857"
+                          fillOpacity={0.15}
+                          strokeWidth={1.5}
+                        />
+                        <Radar
+                          name="Your Score"
+                          dataKey="current"
+                          stroke="#FF6A2A"
+                          fill="#FF6A2A"
+                          fillOpacity={0.35}
+                          strokeWidth={2}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
 
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-[#A6B4C8]">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#42F5E8]" />
-                    <span>Current Knowledge</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#60A5FA]" />
-                    <span>Role Expectation (100%)</span>
+                  {/* Legend */}
+                  <div className="pt-3 border-t border-[#34271F] flex items-center justify-center gap-6 text-xs text-[#C3B7AD]">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#FF6A2A]" />
+                      <span>Your Assessed Score</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#FFC857]" />
+                      <span>Role Benchmark Requirement</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center py-12 text-center border border-dashed border-[#34271F] rounded-lg my-2">
+                  <Brain size={32} className="text-[#A3978D] mb-2" />
+                  <p className="text-sm font-semibold text-[#F5F0EB]">No Skill Criteria Configured</p>
+                  <p className="text-xs text-[#A3978D] max-w-sm mt-1">
+                    Select a target role with defined skills to populate your benchmark radar chart.
+                  </p>
+                  <Link to="/student/roles" className="mt-3">
+                    <Button variant="secondary" size="sm">
+                      View Role Catalogue
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </Card>
           </div>
 
-          {/* Right: Skill Gap Radar Chart */}
-          <div className="lg:col-span-7 flex flex-col">
+          {/* Section B: What to Improve Next (Priority Action Plan) */}
+          <div className="lg:col-span-5 flex flex-col">
             <Card
-              title="Skill Gap Benchmark Radar"
-              subtitle="Comparison of your current scores against required role proficiencies"
-              className="bg-[#111B2D] border-[#243249] flex-1 flex flex-col"
+              title="What to Improve Next"
+              subtitle="Prioritized recommendations based on gap severity and role weight"
+              className="bg-[#191512] border-[#34271F] flex-1 flex flex-col"
             >
-              {radarData.length > 0 ? (
-                <div className="h-72 w-full mt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                      <PolarGrid stroke="#243249" />
-                      <PolarAngleAxis
-                        dataKey="subject"
-                        tick={{ fill: '#A6B4C8', fontSize: 12, fontWeight: 500 }}
-                      />
-                      <PolarRadiusAxis
-                        angle={30}
-                        domain={[0, 100]}
-                        tick={{ fill: '#77869B', fontSize: 10 }}
-                        stroke="#243249"
-                      />
-                      <Radar
-                        name="Required Level"
-                        dataKey="required"
-                        stroke="#60A5FA"
-                        fill="#60A5FA"
-                        fillOpacity={0.15}
-                        strokeWidth={1.5}
-                      />
-                      <Radar
-                        name="Your Score"
-                        dataKey="current"
-                        stroke="#42F5E8"
-                        fill="#42F5E8"
-                        fillOpacity={0.4}
-                        strokeWidth={2}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
+              {recommendations.length > 0 ? (
+                <div className="space-y-3 flex-1 overflow-y-auto max-h-[380px] pr-1">
+                  {recommendations.slice(0, 4).map((rec) => {
+                    const isHigh = rec.priority === 'high';
+                    const isMedium = rec.priority === 'medium';
+                    return (
+                      <div
+                        key={rec.id}
+                        className="p-3.5 rounded-lg bg-[#14110F] border border-[#34271F] hover:border-[#65402C] transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-sm text-[#F5F0EB]">
+                              {rec.skill_name || 'Action Item'}
+                            </span>
+                            <Badge
+                              variant={isHigh ? 'coral' : isMedium ? 'amber' : 'neutral'}
+                              size="sm"
+                            >
+                              {rec.priority}
+                            </Badge>
+                          </div>
+
+                          {rec.skill_id ? (
+                            <Link to={`/student/assessments/${rec.skill_id}`}>
+                              <Button variant="outline" size="sm" className="text-xs py-1">
+                                Assess
+                              </Button>
+                            </Link>
+                          ) : (
+                            <Link to="/student/preparation">
+                              <Button variant="secondary" size="sm" className="text-xs py-1">
+                                Practice
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-[#C3B7AD] leading-relaxed">
+                          {rec.message}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center py-12 text-center border border-dashed border-[#243249] rounded-xl my-4">
-                  <Brain size={36} className="text-[#77869B] mb-3" />
-                  <p className="text-sm font-semibold text-[#F3F7FC]">No Skill Data Available</p>
-                  <p className="text-xs text-[#77869B] max-w-sm mt-1">
-                    Select a target role or take subject evaluations to populate your diagnostic radar.
+                <div className="flex-1 flex flex-col items-center justify-center py-10 text-center">
+                  <CheckCircle2 size={32} className="text-[#FF6A2A] mb-2" />
+                  <p className="text-sm font-semibold text-[#F5F0EB]">No Pending Actions</p>
+                  <p className="text-xs text-[#A3978D] max-w-xs mt-1">
+                    {gaps.length === 0
+                      ? 'Select an active role with skills to generate targeted recommendations.'
+                      : 'You are on track! Log study hours to maintain consistency.'}
                   </p>
                 </div>
               )}
@@ -353,134 +417,78 @@ export const DashboardPage = () => {
         </div>
 
         {/* ========================================================================= */}
-        {/* PRESCRIPTIVE RECOMMENDATIONS SECTION */}
-        {/* ========================================================================= */}
-        <Card
-          title="Priority Action Plan & Recommendations"
-          subtitle="System-generated interventions ordered by placement impact"
-          className="bg-[#111B2D] border-[#243249]"
-        >
-          {recommendations.length > 0 ? (
-            <div className="space-y-3.5">
-              {recommendations.map((rec) => (
-                <div
-                  key={rec.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#0D1320] border border-[#243249] hover:border-[#364A6B] transition-all"
-                >
-                  <div className="flex items-start gap-3.5">
-                    <div className="p-2.5 rounded-xl bg-[#17243A] text-[#42F5E8] flex-shrink-0 mt-0.5">
-                      {rec.recommendation_type === 'take_assessment' && <Activity size={20} />}
-                      {rec.recommendation_type === 'practice_skill' && <Brain size={20} />}
-                      {rec.recommendation_type === 'study_resource' && <BookOpen size={20} />}
-                      {rec.recommendation_type === 'review_weak_area' && <Target size={20} />}
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <span className="font-bold text-[#F3F7FC] text-sm sm:text-base">
-                          {rec.skill_name || 'General Recommendation'}
-                        </span>
-                        <Badge
-                          variant={
-                            rec.priority === 'high'
-                              ? 'danger'
-                              : rec.priority === 'medium'
-                              ? 'warning'
-                              : 'cyan'
-                          }
-                          size="sm"
-                        >
-                          {rec.priority} Priority
-                        </Badge>
-                      </div>
-                      <p className="text-xs sm:text-sm text-[#A6B4C8] leading-relaxed">
-                        {rec.message}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex-shrink-0 sm:self-center">
-                    {rec.skill_id ? (
-                      <Link to={`/student/assessments/${rec.skill_id}`}>
-                        <Button variant="outline" size="sm" icon={Activity}>
-                          Assess Now
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Link to="/student/preparation">
-                        <Button variant="secondary" size="sm" icon={BookOpen}>
-                          Log Practice
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="py-10 text-center text-[#77869B]">
-              <CheckCircle2 size={36} className="mx-auto text-[#4ADE80] mb-2" />
-              <p className="text-sm font-semibold text-[#F3F7FC]">No Outstanding Actions</p>
-              <p className="text-xs text-[#77869B] mt-1">
-                You're in great shape! Keep maintaining practice hours or assess advanced skills.
-              </p>
-            </div>
-          )}
-        </Card>
-
-        {/* ========================================================================= */}
-        {/* DETAILED SKILL GAP TABLE */}
+        {/* DETAILED COMPETENCY BREAKDOWN TABLE */}
         {/* ========================================================================= */}
         <Card
           title="Role Competency Breakdown"
-          subtitle="Detailed mapping of benchmark requirements vs your assessed scores"
-          className="bg-[#111B2D] border-[#243249]"
+          subtitle="Detailed mapping of target requirements vs your assessed scores"
+          className="bg-[#191512] border-[#34271F]"
         >
           {gaps.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="bg-[#0D1320] text-[#77869B] text-xs uppercase tracking-wider">
+                <thead className="bg-[#14110F] text-[#A3978D] text-xs uppercase tracking-wider">
                   <tr>
-                    <th className="px-4 py-3 rounded-l-lg font-semibold">Skill Domain</th>
-                    <th className="px-4 py-3 font-semibold">Current Score</th>
-                    <th className="px-4 py-3 font-semibold">Required Benchmark</th>
-                    <th className="px-4 py-3 font-semibold">Gap Severity</th>
-                    <th className="px-4 py-3 rounded-r-lg font-semibold text-right">Action</th>
+                    <th className="px-3.5 py-2.5 rounded-l-lg font-semibold">Skill Domain</th>
+                    <th className="px-3.5 py-2.5 font-semibold">Current Score</th>
+                    <th className="px-3.5 py-2.5 font-semibold">Target Benchmark</th>
+                    <th className="px-3.5 py-2.5 font-semibold">Severity</th>
+                    <th className="px-3.5 py-2.5 rounded-r-lg font-semibold text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#243249]">
-                  {gaps.map((gap) => (
-                    <tr key={gap.skill_id} className="hover:bg-[#17243A]/40 transition-colors">
-                      <td className="px-4 py-3.5 font-semibold text-[#F3F7FC]">
-                        {gap.skill_name}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="font-bold text-[#42F5E8]">
-                          {gap.is_assessed ? `${Math.round(gap.current_score)}%` : 'Not Assessed'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-[#A6B4C8]">
-                        {Math.round(gap.required_level)}%
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <Badge variant={getSeverityBadgeVariant(gap.gap_category)} size="sm">
-                          {gap.gap_category || 'pending'}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3.5 text-right">
-                        <Link to={`/student/assessments/${gap.skill_id}`}>
-                          <Button variant="ghost" size="sm" icon={Activity}>
-                            Take Test
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                <tbody className="divide-y divide-[#34271F]">
+                  {gaps.map((gap) => {
+                    const isCritical = gap.gap_category === 'critical' || gap.gap_value > 35;
+                    const isMedium = gap.gap_category === 'medium';
+                    return (
+                      <tr key={gap.skill_id} className="hover:bg-[#241B16]/50 transition-colors">
+                        <td className="px-3.5 py-3 font-semibold text-[#F5F0EB]">
+                          {gap.skill_name}
+                        </td>
+                        <td className="px-3.5 py-3">
+                          {gap.is_assessed ? (
+                            <span className="font-bold text-[#FF6A2A]">
+                              {Math.round(gap.current_score)}%
+                            </span>
+                          ) : (
+                            <span className="text-xs text-[#A3978D]">Not Assessed</span>
+                          )}
+                        </td>
+                        <td className="px-3.5 py-3 text-[#C3B7AD]">
+                          {Math.round(gap.required_level)}%
+                        </td>
+                        <td className="px-3.5 py-3">
+                          <Badge
+                            variant={
+                              !gap.is_assessed
+                                ? 'neutral'
+                                : isCritical
+                                ? 'coral'
+                                : isMedium
+                                ? 'amber'
+                                : 'neutral'
+                            }
+                            size="sm"
+                          >
+                            {!gap.is_assessed ? 'Pending' : gap.gap_category || 'Assessed'}
+                          </Badge>
+                        </td>
+                        <td className="px-3.5 py-3 text-right">
+                          <Link to={`/student/assessments/${gap.skill_id}`}>
+                            <Button variant="ghost" size="sm" icon={Activity} className="text-xs py-1">
+                              {gap.is_assessed ? 'Retest' : 'Assess'}
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div className="py-8 text-center text-[#77869B]">
-              No skill requirements available for this role.
+            <div className="py-8 text-center text-[#A3978D] text-xs">
+              No skill criteria configured for your selected target role yet.
             </div>
           )}
         </Card>

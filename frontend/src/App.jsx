@@ -74,9 +74,9 @@ export const App = () => {
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-[#080B12] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-[#0A0908] flex flex-col items-center justify-center gap-4">
         <Spinner size="lg" />
-        <p className="text-sm text-[#77869B] animate-pulse">Initializing PlacementTracker...</p>
+        <p className="text-sm text-[#A3978D] animate-pulse">Initializing PlacementTracker...</p>
       </div>
     );
   }

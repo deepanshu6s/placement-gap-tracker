@@ -4,38 +4,43 @@ import { Info, AlertTriangle, AlertCircle, CheckCircle2 } from 'lucide-react';
 export const Alert = ({ children, variant = 'info', title, className = '' }) => {
   const configs = {
     info: {
-      bg: 'bg-[#60A5FA]/10',
-      border: 'border-[#60A5FA]/30',
-      text: 'text-[#93C5FD]',
-      titleColor: 'text-[#BFDBFE]',
+      bg: 'bg-[#FF6A2A]/10',
+      border: 'border-[#FF6A2A]/35',
+      text: 'text-[#F5F0EB]',
+      titleColor: 'text-[#FF6A2A]',
+      iconColor: 'text-[#FF6A2A]',
       Icon: Info,
     },
     warning: {
-      bg: 'bg-[#FBBF24]/10',
-      border: 'border-[#FBBF24]/30',
-      text: 'text-[#FDE68A]',
-      titleColor: 'text-[#FEF08A]',
+      bg: 'bg-[#FFC857]/10',
+      border: 'border-[#FFC857]/35',
+      text: 'text-[#F5F0EB]',
+      titleColor: 'text-[#FFC857]',
+      iconColor: 'text-[#FFC857]',
       Icon: AlertTriangle,
     },
     danger: {
-      bg: 'bg-[#FB7185]/10',
-      border: 'border-[#FB7185]/30',
-      text: 'text-[#FECDD3]',
-      titleColor: 'text-[#FFE4E6]',
+      bg: 'bg-[#FF526F]/10',
+      border: 'border-[#FF526F]/35',
+      text: 'text-[#F5F0EB]',
+      titleColor: 'text-[#FF526F]',
+      iconColor: 'text-[#FF526F]',
       Icon: AlertCircle,
     },
     error: {
-      bg: 'bg-[#FB7185]/10',
-      border: 'border-[#FB7185]/30',
-      text: 'text-[#FECDD3]',
-      titleColor: 'text-[#FFE4E6]',
+      bg: 'bg-[#FF526F]/10',
+      border: 'border-[#FF526F]/35',
+      text: 'text-[#F5F0EB]',
+      titleColor: 'text-[#FF526F]',
+      iconColor: 'text-[#FF526F]',
       Icon: AlertCircle,
     },
     success: {
-      bg: 'bg-[#4ADE80]/10',
-      border: 'border-[#4ADE80]/30',
-      text: 'text-[#BBF7D0]',
-      titleColor: 'text-[#DCFCE7]',
+      bg: 'bg-[#FF6A2A]/10',
+      border: 'border-[#FF6A2A]/35',
+      text: 'text-[#F5F0EB]',
+      titleColor: 'text-[#FF6A2A]',
+      iconColor: 'text-[#FF6A2A]',
       Icon: CheckCircle2,
     },
   };
@@ -45,12 +50,12 @@ export const Alert = ({ children, variant = 'info', title, className = '' }) => 
 
   return (
     <div
-      className={`p-4 rounded-xl border ${config.bg} ${config.border} flex items-start gap-3.5 text-sm transition-all ${className}`}
+      className={`p-3.5 sm:p-4 rounded-xl border ${config.bg} ${config.border} flex items-start gap-3 text-xs sm:text-sm transition-all ${className}`}
       role="alert"
     >
-      <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${config.text}`} />
+      <Icon className={`w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 mt-0.5 ${config.iconColor}`} />
       <div className="flex-1 space-y-0.5">
-        {title && <h5 className={`font-semibold ${config.titleColor}`}>{title}</h5>}
+        {title && <h5 className={`font-semibold text-xs sm:text-sm ${config.titleColor}`}>{title}</h5>}
         <div className={`leading-relaxed ${config.text}`}>{children}</div>
       </div>
     </div>
