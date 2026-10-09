@@ -1,6 +1,7 @@
 const StudentRepository = require('../repositories/student.repository');
 const RoleRepository = require('../repositories/role.repository');
 const ReadinessService = require('./readiness.service');
+const GapService = require('./gap.service');
 
 const StudentService = {
   async getProfile(userId) {
@@ -32,11 +33,12 @@ const StudentService = {
       // Update existing var to reflect the new role
       existing = await StudentRepository.findById(existing.id);
 
-      // Recompute readiness asynchronously
-      if (ReadinessService && ReadinessService.recompute) {
-        ReadinessService.recompute(existing.id, target_role_id).catch(err => {
-          console.error('Readiness recompute failed after target role change:', err);
-        });
+      // Recompute gaps and readiness
+      try {
+        await GapService.recompute(existing.id, target_role_id);
+        await ReadinessService.recompute(existing.id, target_role_id);
+      } catch (err) {
+        console.error('Recompute failed after target role change:', err);
       }
     } else {
       existing = await StudentRepository.findById(existing.id);
@@ -56,10 +58,13 @@ const StudentService = {
       ...profileData
     });
 
-    if (profile.target_role_id && ReadinessService && ReadinessService.recompute) {
-      ReadinessService.recompute(profile.id, profile.target_role_id).catch(err => {
-        console.error('Readiness recompute failed after profile setup:', err);
-      });
+    if (profile.target_role_id) {
+      try {
+        await GapService.recompute(profile.id, profile.target_role_id);
+        await ReadinessService.recompute(profile.id, profile.target_role_id);
+      } catch (err) {
+        console.error('Recompute failed after profile setup:', err);
+      }
     }
 
     return profile;

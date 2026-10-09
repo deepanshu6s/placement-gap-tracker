@@ -8,7 +8,11 @@ const RecommendationService = {
     if (!roleId) return [];
 
     // Get skill gaps and requirements
-    const gaps = await GapRepository.getSkillGaps(studentId, roleId);
+    let gaps = await GapRepository.getSkillGaps(studentId, roleId);
+    if (!gaps || gaps.length === 0) {
+      const GapService = require('./gap.service');
+      gaps = await GapService.recompute(studentId, roleId);
+    }
     if (!gaps || gaps.length === 0) return [];
     
     // Get role requirements for weights
@@ -139,7 +143,11 @@ const RecommendationService = {
 
   async getActiveRecommendations(studentId, roleId) {
     if (!roleId) return [];
-    return await RecommendationRepository.getActiveRecommendations(studentId, roleId);
+    let recs = await RecommendationRepository.getActiveRecommendations(studentId, roleId);
+    if (!recs || recs.length === 0) {
+      recs = await this.generateRecommendations(studentId, roleId);
+    }
+    return recs;
   },
 
   async dismiss(id, studentId) {

@@ -133,12 +133,15 @@ const AssessmentService = {
       client.release();
     }
 
-    // Post-transaction asynchronous trigger
+    // Await recomputation so scores and gaps are persisted before returning
     const profile = await StudentRepository.findById(studentId);
     if (profile && profile.target_role_id) {
-      GapService.recompute(studentId, profile.target_role_id).then(() => {
-        return ReadinessService.recompute(studentId, profile.target_role_id);
-      }).catch(err => console.error('Post-assessment compute failed:', err));
+      try {
+        await GapService.recompute(studentId, profile.target_role_id);
+        await ReadinessService.recompute(studentId, profile.target_role_id);
+      } catch (err) {
+        console.error('Post-assessment recompute failed:', err);
+      }
     }
 
     return completedAttempt;

@@ -100,9 +100,15 @@ export const DashboardPage = () => {
   const readinessScore =
     readiness?.score !== null && readiness?.score !== undefined ? Math.round(readiness.score) : null;
   const criticalGapsCount = gaps.filter(
-    (g) => g.gap_category === 'critical' || (g.gap_value !== undefined && g.gap_value > 35)
+    (g) => g.is_assessed && (g.gap_category === 'critical' || g.gap > 35)
   ).length;
-  const assessedSkillsCount = gaps.filter((g) => g.is_assessed || g.current_score > 0).length;
+  const assessedSkillsCount = readiness?.assessedSkillsCount !== undefined
+    ? readiness.assessedSkillsCount
+    : gaps.filter((g) => g.is_assessed).length;
+  const totalSkillsCount = readiness?.totalSkillsCount || gaps.length;
+  const assessmentCoverage = readiness?.assessmentCoverage !== undefined
+    ? readiness.assessmentCoverage
+    : totalSkillsCount > 0 ? Math.round((assessedSkillsCount / totalSkillsCount) * 100) : 0;
   const totalLoggedHours = prepLogs.reduce((sum, l) => sum + (parseFloat(l.hours_spent) || 0), 0);
 
   // Radar data formatting for Recharts
@@ -113,8 +119,8 @@ export const DashboardPage = () => {
     fullMark: 100,
   }));
 
-  const isRoleWithoutSkills = readiness?.status === 'ROLE_HAS_NO_SKILLS' || gaps.length === 0;
-  const isUnassessed = gaps.length > 0 && assessedSkillsCount === 0;
+  const isRoleWithoutSkills = readiness?.status === 'ROLE_HAS_NO_SKILLS' || (!loading && gaps.length === 0);
+  const isUnassessed = totalSkillsCount > 0 && assessedSkillsCount === 0;
 
   return (
     <PageWrapper
@@ -177,10 +183,10 @@ export const DashboardPage = () => {
             </div>
             <div className="mt-2.5 flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-[#F5F0EB] tracking-tight">
-                {readinessScore !== null ? `${readinessScore}%` : 'N/A'}
+                {readinessScore !== null ? `${readinessScore}%` : 'Not Assessed'}
               </span>
               <span className="text-xs text-[#C3B7AD]">
-                {readinessScore !== null ? 'Weighted Score' : 'Awaiting Tests'}
+                {readinessScore !== null ? (readiness?.isFullyAssessed ? 'Fully Assessed' : 'Partial Score') : 'Diagnostic Pending'}
               </span>
             </div>
             <div className="mt-3 w-full bg-[#241B16] h-1.5 rounded-full overflow-hidden">
@@ -215,12 +221,14 @@ export const DashboardPage = () => {
             </div>
             <p className="mt-3 text-xs text-[#A3978D]">
               {criticalGapsCount === 0
-                ? 'No critical deficiencies identified'
+                ? isUnassessed
+                  ? 'Assess skills to evaluate gap severity'
+                  : 'No critical deficiencies identified'
                 : 'Deficiency > 35% against role benchmark'}
             </p>
           </Card>
 
-          {/* Card 3: Skills Assessed */}
+          {/* Card 3: Skills Assessed & Coverage */}
           <Card hover className="bg-[#191512] border-[#34271F]">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
@@ -233,17 +241,18 @@ export const DashboardPage = () => {
             <div className="mt-2.5 flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-[#F5F0EB] tracking-tight">
                 {assessedSkillsCount}{' '}
-                <span className="text-lg text-[#A3978D] font-normal">/ {gaps.length}</span>
+                <span className="text-lg text-[#A3978D] font-normal">/ {totalSkillsCount}</span>
               </span>
-              <span className="text-xs text-[#C3B7AD]">Role Skills</span>
+              <span className="text-xs text-[#FFC857] font-semibold">
+                {assessmentCoverage}% Coverage
+              </span>
             </div>
-            <p className="mt-3 text-xs text-[#A3978D]">
-              {gaps.length === 0
-                ? 'No required skills defined'
-                : assessedSkillsCount === gaps.length
-                ? 'All required skills evaluated'
-                : `${gaps.length - assessedSkillsCount} skill(s) pending assessment`}
-            </p>
+            <div className="mt-3 w-full bg-[#241B16] h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-[#FFC857] h-full transition-all duration-300"
+                style={{ width: `${Math.min(100, assessmentCoverage || 0)}%` }}
+              />
+            </div>
           </Card>
 
           {/* Card 4: Logged Preparation */}
@@ -438,8 +447,9 @@ export const DashboardPage = () => {
                 </thead>
                 <tbody className="divide-y divide-[#34271F]">
                   {gaps.map((gap) => {
-                    const isCritical = gap.gap_category === 'critical' || gap.gap_value > 35;
-                    const isMedium = gap.gap_category === 'medium';
+                    const isCritical = gap.is_assessed && (gap.gap_category === 'critical' || gap.gap > 35 || gap.gap_value > 35);
+                    const isMedium = gap.is_assessed && (gap.gap_category === 'medium' || (gap.gap > 15 && gap.gap <= 35));
+                    const isMet = gap.is_assessed && (gap.gap <= 0 || gap.current_score >= gap.required_level);
                     return (
                       <tr key={gap.skill_id} className="hover:bg-[#241B16]/50 transition-colors">
                         <td className="px-3.5 py-3 font-semibold text-[#F5F0EB]">
@@ -462,6 +472,8 @@ export const DashboardPage = () => {
                             variant={
                               !gap.is_assessed
                                 ? 'neutral'
+                                : isMet
+                                ? 'orange'
                                 : isCritical
                                 ? 'coral'
                                 : isMedium
@@ -470,7 +482,15 @@ export const DashboardPage = () => {
                             }
                             size="sm"
                           >
-                            {!gap.is_assessed ? 'Pending' : gap.gap_category || 'Assessed'}
+                            {!gap.is_assessed
+                              ? 'Not Assessed'
+                              : isMet
+                              ? 'Benchmark Met'
+                              : isCritical
+                              ? 'Critical Gap'
+                              : isMedium
+                              ? 'Moderate Gap'
+                              : 'Minor Gap'}
                           </Badge>
                         </td>
                         <td className="px-3.5 py-3 text-right">

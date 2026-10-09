@@ -8,7 +8,8 @@ const RoleService = {
   async getRoleById(id) {
     const role = await RoleRepository.findById(id);
     if (!role) throw new Error('Role not found');
-    return role;
+    const requirements = await RoleRepository.getSkillRequirements(id);
+    return { ...role, requirements };
   },
 
   async createRole(data, createdBy) {

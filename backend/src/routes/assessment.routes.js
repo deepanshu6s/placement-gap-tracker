@@ -13,6 +13,7 @@ const ensureStudentProfile = async (req, res, next) => {
     return res.status(403).json({ success: false, error: { code: 'FORBIDDEN', message: 'Student profile required' }});
   }
   req.user.studentProfileId = profile.id;
+  req.user.targetRoleId = profile.target_role_id;
   next();
 };
 
