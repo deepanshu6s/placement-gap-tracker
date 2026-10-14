@@ -2,71 +2,146 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Google Font import ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ─── Dark theme (default) ───────────────────────────────────────────────── */
 @layer base {
-  :root {
+  :root,
+  .dark {
     color-scheme: dark;
-    --bg-app: #0A0908;
-    --surface-elevated: #12100E;
-    --surface-card: #191512;
-    --surface-hover: #241B16;
-    --surface-input: #14110F;
-    --border-primary: #34271F;
-    --border-active: #65402C;
-    --color-orange: #FF6A2A;
+    --bg-app:             #0A0908;
+    --surface-elevated:   #12100E;
+    --surface-card:       #191512;
+    --surface-hover:      #241B16;
+    --surface-input:      #14110F;
+    --border-primary:     #34271F;
+    --border-active:      #65402C;
+    --color-orange:       #FF6A2A;
     --color-orange-hover: #FF7B43;
-    --color-coral: #FF526F;
-    --color-amber: #FFC857;
-    --text-primary: #F5F0EB;
-    --text-secondary: #C3B7AD;
-    --text-muted: #A3978D;
-    --text-disabled: #786D65;
+    --color-coral:        #FF526F;
+    --color-amber:        #FFC857;
+    --text-primary:       #F5F0EB;
+    --text-secondary:     #C3B7AD;
+    --text-muted:         #A3978D;
+    --text-disabled:      #786D65;
+    --shadow-card:        0 2px 12px rgba(0,0,0,0.55);
+    --shadow-elevated:    0 8px 32px rgba(0,0,0,0.75);
+    --overlay-bg:         rgba(10,9,8,0.85);
+  }
+
+  /* ─── Light theme overrides ──────────────────────────────────────────────── */
+  .light {
+    color-scheme: light;
+    --bg-app:             #FAF8F5;
+    --surface-elevated:   #FFFFFF;
+    --surface-card:       #F4F1EC;
+    --surface-hover:      #EDE8E0;
+    --surface-input:      #FFFFFF;
+    --border-primary:     #DDD7CE;
+    --border-active:      #C4A882;
+    --color-orange:       #D95A1A;
+    --color-orange-hover: #C24E15;
+    --color-coral:        #D93B57;
+    --color-amber:        #C89820;
+    --text-primary:       #1A1208;
+    --text-secondary:     #4A3F35;
+    --text-muted:         #7A6F65;
+    --text-disabled:      #AEA399;
+    --shadow-card:        0 2px 12px rgba(0,0,0,0.08);
+    --shadow-elevated:    0 8px 32px rgba(0,0,0,0.14);
+    --overlay-bg:         rgba(250,248,245,0.90);
+  }
+
+  /* ─── Base styles ────────────────────────────────────────────────────────── */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  *, *::before, *::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 200ms;
+    transition-timing-function: ease;
   }
 
   body {
-    background-color: #0A0908;
-    color: #F5F0EB;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Refined warm dark scrollbar */
+  /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
   ::-webkit-scrollbar {
     width: 7px;
     height: 7px;
   }
   ::-webkit-scrollbar-track {
-    background: #0A0908;
+    background: var(--bg-app);
   }
   ::-webkit-scrollbar-thumb {
-    background: #34271F;
+    background: var(--border-primary);
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #65402C;
+    background: var(--border-active);
   }
 
   ::selection {
-    background-color: rgba(255, 106, 42, 0.25);
-    color: #FF6A2A;
+    background-color: rgba(255, 106, 42, 0.20);
+    color: var(--color-orange);
   }
 }
 
+/* ─── Utility layer ──────────────────────────────────────────────────────── */
 @layer utilities {
-  .border-warm {
-    border-color: #34271F;
-  }
-  .border-warm-active {
-    border-color: #65402C;
-  }
+  .bg-app           { background-color: var(--bg-app); }
+  .bg-surface       { background-color: var(--surface-elevated); }
+  .bg-card          { background-color: var(--surface-card); }
+  .bg-hover         { background-color: var(--surface-hover); }
+  .bg-input         { background-color: var(--surface-input); }
+  .border-warm      { border-color: var(--border-primary); }
+  .border-warm-active { border-color: var(--border-active); }
+  .text-primary-t   { color: var(--text-primary); }
+  .text-secondary-t { color: var(--text-secondary); }
+  .text-muted-t     { color: var(--text-muted); }
+  .text-accent      { color: var(--color-orange); }
+  .shadow-card-t    { box-shadow: var(--shadow-card); }
+  .shadow-elevated-t { box-shadow: var(--shadow-elevated); }
 }
 
+/* ─── Keyframes & animations ─────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(255, 106, 42, 0.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(255, 106, 42, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(255, 106, 42, 0); }
+}
+
+.animate-fade-in       { animation: fadeIn        0.20s ease-out forwards; }
+.animate-fade-in-scale { animation: fadeInScale   0.22s ease-out forwards; }
+.animate-slide-in-left { animation: slideInLeft   0.18s ease-out forwards; }
+.animate-pulse-ring    { animation: pulse-ring    1.8s  ease-out infinite; }
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1      !important;
+    transition-duration:       0.01ms !important;
+    scroll-behavior:           auto   !important;
   }
 }

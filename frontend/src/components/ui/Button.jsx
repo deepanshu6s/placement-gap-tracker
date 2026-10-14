@@ -9,24 +9,29 @@ export const Button = ({
   onClick,
   type = 'button',
   icon: Icon,
+  style = {},
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0A0908] disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.99]';
+    'inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.99]';
 
-  const variants = {
-    primary:
-      'bg-[#FF6A2A] hover:bg-[#FF7B43] text-[#0A0908] focus:ring-[#FF6A2A]',
-    accent:
-      'bg-[#FFC857] hover:bg-[#FFD273] text-[#0A0908] focus:ring-[#FFC857]',
-    secondary:
-      'bg-[#191512] hover:bg-[#241B16] text-[#F5F0EB] border border-[#34271F] hover:border-[#65402C] focus:ring-[#65402C]',
-    outline:
-      'bg-transparent hover:bg-[#FF6A2A]/10 text-[#FF6A2A] border border-[#FF6A2A]/50 hover:border-[#FF6A2A] focus:ring-[#FF6A2A]',
-    ghost:
-      'bg-transparent hover:bg-[#241B16] text-[#C3B7AD] hover:text-[#F5F0EB] focus:ring-[#34271F]',
-    danger:
-      'bg-[#FF526F]/15 hover:bg-[#FF526F]/25 text-[#FF526F] border border-[#FF526F]/40 hover:border-[#FF526F] focus:ring-[#FF526F]',
+  // Using CSS var-based inline styles for theme-awareness; Tailwind classes for non-color properties
+  const variantClasses = {
+    primary:   'text-white focus:ring-[var(--color-orange)]',
+    accent:    'text-[#0A0908] focus:ring-[var(--color-amber)]',
+    secondary: 'border focus:ring-[var(--border-active)]',
+    outline:   'border bg-transparent focus:ring-[var(--color-orange)]',
+    ghost:     'bg-transparent focus:ring-[var(--border-primary)]',
+    danger:    'border focus:ring-[var(--color-coral)]',
+  };
+
+  const variantStyles = {
+    primary:   { background: 'var(--color-orange)', color: '#fff' },
+    accent:    { background: 'var(--color-amber)',  color: '#0A0908' },
+    secondary: { background: 'var(--surface-card)', color: 'var(--text-primary)', borderColor: 'var(--border-primary)' },
+    outline:   { color: 'var(--color-orange)', borderColor: 'var(--color-orange)', background: 'transparent' },
+    ghost:     { background: 'transparent', color: 'var(--text-secondary)' },
+    danger:    { background: 'rgba(255,82,111,0.1)', color: 'var(--color-coral)', borderColor: 'rgba(255,82,111,0.4)' },
   };
 
   const sizes = {
@@ -40,7 +45,8 @@ export const Button = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`${baseStyles} ${variants[variant] || variants.primary} ${sizes[size] || sizes.md} ${className}`}
+      className={`${baseStyles} ${variantClasses[variant] || variantClasses.primary} ${sizes[size] || sizes.md} ${className}`}
+      style={{ ...(variantStyles[variant] || variantStyles.primary), ...style }}
       {...props}
     >
       {Icon && <Icon size={size === 'sm' ? 14 : size === 'lg' ? 18 : 16} className="flex-shrink-0" />}

@@ -1,18 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/layout/Navbar';
 import { Sidebar } from '../components/layout/Sidebar';
+import { OnboardingOverlay } from '../components/ui/OnboardingOverlay';
+import { useUiStore } from '../store/uiStore';
 
 export const StudentLayout = () => {
+  const { checkAndShowOnboarding } = useUiStore();
+
+  // Check on mount — shows onboarding if user has never seen it
+  useEffect(() => {
+    checkAndShowOnboarding();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
-    <div className="min-h-screen bg-[#0A0908] text-[#F5F0EB] flex flex-col selection:bg-[#FF6A2A]/20 selection:text-[#FF6A2A]">
+    <div
+      className="min-h-screen flex flex-col selection:bg-[#FF6A2A]/20 selection:text-[var(--color-orange)]"
+      style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}
+    >
       <Navbar />
       <div className="flex-1 flex overflow-hidden">
         <Sidebar role="student" />
-        <div className="flex-1 bg-[#0A0908] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" style={{ background: 'var(--bg-app)' }}>
           <Outlet />
         </div>
       </div>
+
+      {/* First-time onboarding overlay */}
+      <OnboardingOverlay />
     </div>
   );
 };
