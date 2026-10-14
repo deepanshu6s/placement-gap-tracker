@@ -80,7 +80,6 @@ export const LoginPage = () => {
     <Card
       title="Sign In"
       subtitle="Access your placement readiness score and diagnostic reports"
-      className="bg-[#191512] border-[#34271F]"
     >
       <div className="space-y-4">
         {error && (
@@ -104,11 +103,18 @@ export const LoginPage = () => {
           />
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-[#F5F0EB]">
+            <label
+              htmlFor="password"
+              className="block text-xs sm:text-sm font-medium"
+              style={{ color: 'var(--text-primary)' }}
+            >
               Password
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#A3978D]">
+              <div
+                className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
+                style={{ color: 'var(--text-muted)' }}
+              >
                 <Lock size={17} />
               </div>
               <input
@@ -120,12 +126,26 @@ export const LoginPage = () => {
                 required
                 autoComplete="current-password"
                 disabled={loading}
-                className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg pl-10 pr-10 py-2 text-[#F5F0EB] placeholder-[#A3978D] text-sm focus:outline-none transition-all duration-150"
+                className="w-full rounded-lg pl-10 pr-10 py-2 text-sm focus:outline-none transition-all duration-150 border"
+                style={{
+                  background: 'var(--surface-input)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-orange)';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196, 90, 24, 0.15)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-primary)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#A3978D] hover:text-[#F5F0EB] transition-colors focus:outline-none"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center transition-colors focus:outline-none"
+                style={{ color: 'var(--text-muted)' }}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -145,11 +165,15 @@ export const LoginPage = () => {
           </Button>
         </form>
 
-        <div className="pt-3 border-t border-[#34271F] flex flex-col sm:flex-row items-center justify-between text-xs text-[#C3B7AD] gap-2">
+        <div
+          className="pt-3 border-t flex flex-col sm:flex-row items-center justify-between text-xs gap-2"
+          style={{ borderColor: 'var(--border-primary)', color: 'var(--text-secondary)' }}
+        >
           <span>New to PlacementTracker?</span>
           <Link
             to="/register"
-            className="text-[#FF6A2A] hover:text-[#FF7B43] font-semibold hover:underline inline-flex items-center gap-1"
+            className="font-semibold hover:underline inline-flex items-center gap-1 transition-colors"
+            style={{ color: 'var(--color-orange)' }}
           >
             Create Student Account <ArrowRight size={13} />
           </Link>

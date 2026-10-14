@@ -13,6 +13,11 @@ import { ProfileSetupPage } from '../pages/student/ProfileSetupPage';
 import { RolesCataloguePage } from '../pages/student/RolesCataloguePage';
 import { AssessmentPage } from '../pages/student/AssessmentPage';
 import { PreparationPage } from '../pages/student/PreparationPage';
+import { SkillBaselinePage } from '../pages/student/SkillBaselinePage';
+import { SkillDetailPage } from '../pages/student/SkillDetailPage';
+import { RoadmapPage } from '../pages/student/RoadmapPage';
+import { EvidencePortfolioPage } from '../pages/student/EvidencePortfolioPage';
+import { FacultyEvidenceReviewPage } from '../pages/faculty/FacultyEvidenceReviewPage';
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +57,22 @@ export const router = createBrowserRouter([
             element: <RolesCataloguePage />,
           },
           {
+            path: 'skill-baseline',
+            element: <SkillBaselinePage />,
+          },
+          {
+            path: 'skills/:skillId',
+            element: <SkillDetailPage />,
+          },
+          {
+            path: 'roadmap',
+            element: <RoadmapPage />,
+          },
+          {
+            path: 'evidence',
+            element: <EvidencePortfolioPage />,
+          },
+          {
             path: 'assessments/:skillId',
             element: <AssessmentPage />,
           },
@@ -77,6 +98,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <FacultyDashboard />,
+          },
+          {
+            path: 'evidence',
+            element: <FacultyEvidenceReviewPage />,
           },
           {
             path: '*',

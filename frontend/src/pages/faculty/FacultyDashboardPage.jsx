@@ -96,14 +96,14 @@ export const FacultyDashboardPage = () => {
         {/* ========================================================================= */}
         {/* SCOPED FILTER TOOLBAR */}
         {/* ========================================================================= */}
-        <Card className="bg-[#191512] border-[#34271F] p-4">
+        <Card className="p-4">
           <form
             onSubmit={handleApplyFilter}
             className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4"
           >
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
-                <Filter size={14} className="text-[#FF6A2A]" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
+                <Filter size={14} className="text-[var(--color-orange)]" />
                 <span>Scope:</span>
               </div>
 
@@ -111,7 +111,12 @@ export const FacultyDashboardPage = () => {
                 <select
                   value={batchYear}
                   onChange={(e) => setBatchYear(e.target.value)}
-                  className="bg-[#14110F] border border-[#34271F] rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#F5F0EB] focus:outline-none focus:border-[#FF6A2A]"
+                  className="rounded-lg px-2.5 py-1.5 text-xs sm:text-sm border focus:outline-none transition-colors"
+                  style={{
+                    background: 'var(--surface-input)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
                   <option value="2023">Batch 2023</option>
                   <option value="2024">Batch 2024</option>
@@ -124,7 +129,12 @@ export const FacultyDashboardPage = () => {
                 <select
                   value={branch}
                   onChange={(e) => setBranch(e.target.value)}
-                  className="bg-[#14110F] border border-[#34271F] rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#F5F0EB] focus:outline-none focus:border-[#FF6A2A]"
+                  className="rounded-lg px-2.5 py-1.5 text-xs sm:text-sm border focus:outline-none transition-colors"
+                  style={{
+                    background: 'var(--surface-input)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
                   <option value="CS">Computer Science (CS)</option>
                   <option value="IT">Information Tech (IT)</option>
@@ -142,14 +152,19 @@ export const FacultyDashboardPage = () => {
             <div className="relative min-w-[200px]">
               <Search
                 size={15}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A3978D] pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] pointer-events-none"
               />
               <input
                 type="text"
                 placeholder="Search candidates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#14110F] border border-[#34271F] rounded-lg pl-8 pr-3 py-1.5 text-xs sm:text-sm text-[#F5F0EB] placeholder-[#A3978D] focus:outline-none focus:border-[#FF6A2A]"
+                className="w-full border rounded-lg pl-8 pr-3 py-1.5 text-xs sm:text-sm focus:outline-none transition-colors"
+                style={{
+                  background: 'var(--surface-input)',
+                  borderColor: 'var(--border-primary)',
+                  color: 'var(--text-primary)',
+                }}
               />
             </div>
           </form>
@@ -166,64 +181,64 @@ export const FacultyDashboardPage = () => {
             {/* AGGREGATE COHORT METRICS */}
             {/* ========================================================================= */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              <Card hover className="bg-[#191512] border-[#34271F]">
+              <Card hover>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                     Total Enrolled
                   </span>
-                  <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+                  <div className="p-2 rounded-md bg-[var(--surface-hover)] text-[var(--color-orange)] border border-[var(--border-primary)]">
                     <Users size={16} />
                   </div>
                 </div>
-                <div className="mt-2.5 text-3xl font-extrabold text-[#F5F0EB]">
+                <div className="mt-2.5 text-3xl font-extrabold text-[var(--text-primary)]">
                   {students.length}
                 </div>
-                <p className="text-xs text-[#A3978D] mt-1">Students in selected cohort</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">Students in selected cohort</p>
               </Card>
 
-              <Card hover className="bg-[#191512] border-[#34271F]">
+              <Card hover>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                     Avg. Readiness
                   </span>
-                  <div className="p-2 rounded-md bg-[#241B16] text-[#FFC857]">
+                  <div className="p-2 rounded-md bg-[var(--surface-hover)] text-[var(--color-amber)] border border-[var(--border-primary)]">
                     <Target size={16} />
                   </div>
                 </div>
-                <div className="mt-2.5 text-3xl font-extrabold text-[#FFC857]">
+                <div className="mt-2.5 text-3xl font-extrabold text-[var(--color-amber)]">
                   {analytics?.avg_readiness ? `${Math.round(analytics.avg_readiness)}%` : 'N/A'}
                 </div>
-                <p className="text-xs text-[#A3978D] mt-1">Cohort placement average</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">Cohort placement average</p>
               </Card>
 
-              <Card hover className="bg-[#191512] border-[#34271F]">
+              <Card hover>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                     Critical Gap Areas
                   </span>
-                  <div className="p-2 rounded-md bg-[#241B16] text-[#FF526F]">
+                  <div className="p-2 rounded-md bg-[var(--surface-hover)] text-[var(--color-coral)] border border-[var(--border-primary)]">
                     <AlertTriangle size={16} />
                   </div>
                 </div>
-                <div className="mt-2.5 text-3xl font-extrabold text-[#FF526F]">
+                <div className="mt-2.5 text-3xl font-extrabold text-[var(--color-coral)]">
                   {analytics?.critical_gaps_count || 0}
                 </div>
-                <p className="text-xs text-[#A3978D] mt-1">Identified curriculum gaps</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">Identified curriculum gaps</p>
               </Card>
 
-              <Card hover className="bg-[#191512] border-[#34271F]">
+              <Card hover>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                     Intervention Need
                   </span>
-                  <div className="p-2 rounded-md bg-[#241B16] text-[#FF526F]">
+                  <div className="p-2 rounded-md bg-[var(--surface-hover)] text-[var(--color-coral)] border border-[var(--border-primary)]">
                     <GraduationCap size={16} />
                   </div>
                 </div>
-                <div className="mt-2.5 text-3xl font-extrabold text-[#FF526F]">
+                <div className="mt-2.5 text-3xl font-extrabold text-[var(--color-coral)]">
                   {studentsNeedingIntervention}
                 </div>
-                <p className="text-xs text-[#A3978D] mt-1">Candidates with score &lt; 50%</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">Candidates with score &lt; 50%</p>
               </Card>
             </div>
 
@@ -233,11 +248,13 @@ export const FacultyDashboardPage = () => {
             <Card
               title={`Student Cohort Roster (${branch} • Batch ${batchYear})`}
               subtitle={`Displaying ${filteredStudents.length} of ${students.length} candidates`}
-              className="bg-[#191512] border-[#34271F]"
             >
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-[#14110F] text-[#A3978D] text-xs uppercase tracking-wider">
+                  <thead
+                    className="text-xs uppercase tracking-wider"
+                    style={{ background: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
+                  >
                     <tr>
                       <th className="px-3.5 py-2.5 rounded-l-lg font-semibold">Student Name</th>
                       <th className="px-3.5 py-2.5 font-semibold">Roll Number</th>
@@ -248,7 +265,7 @@ export const FacultyDashboardPage = () => {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#34271F]">
+                  <tbody className="divide-y divide-[var(--border-primary)]">
                     {filteredStudents.map((s) => {
                       const score =
                         s.readiness_score !== null && s.readiness_score !== undefined
@@ -256,11 +273,11 @@ export const FacultyDashboardPage = () => {
                           : null;
                       const needsHelp = score !== null && score < 50;
                       return (
-                        <tr key={s.id} className="hover:bg-[#241B16]/50 transition-colors">
-                          <td className="px-3.5 py-3 font-semibold text-[#F5F0EB]">
+                        <tr key={s.id} className="hover:bg-[var(--surface-hover)] transition-colors">
+                          <td className="px-3.5 py-3 font-semibold text-[var(--text-primary)]">
                             {s.full_name}
                           </td>
-                          <td className="px-3.5 py-3 font-mono text-xs text-[#C3B7AD]">
+                          <td className="px-3.5 py-3 font-mono text-xs text-[var(--text-secondary)]">
                             {s.roll_number || 'N/A'}
                           </td>
                           <td className="px-3.5 py-3">
@@ -273,16 +290,16 @@ export const FacultyDashboardPage = () => {
                               <span
                                 className={`font-bold ${
                                   score >= 70
-                                    ? 'text-[#FF6A2A]'
+                                    ? 'text-[var(--color-orange)]'
                                     : score >= 50
-                                    ? 'text-[#FFC857]'
-                                    : 'text-[#FF526F]'
+                                    ? 'text-[var(--color-amber)]'
+                                    : 'text-[var(--color-coral)]'
                                 }`}
                               >
                                 {score}%
                               </span>
                             ) : (
-                              <span className="text-[#A3978D] text-xs">Unassessed</span>
+                              <span className="text-[var(--text-muted)] text-xs">Unassessed</span>
                             )}
                           </td>
                           <td className="px-3.5 py-3 text-right">
@@ -306,7 +323,7 @@ export const FacultyDashboardPage = () => {
 
                     {filteredStudents.length === 0 && (
                       <tr>
-                        <td colSpan="5" className="px-4 py-10 text-center text-[#A3978D] text-xs">
+                        <td colSpan="5" className="px-4 py-10 text-center text-[var(--text-muted)] text-xs">
                           No students found matching your criteria in this cohort.
                         </td>
                       </tr>

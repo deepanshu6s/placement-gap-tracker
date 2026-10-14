@@ -124,7 +124,7 @@ export const OnboardingOverlay = () => {
     setLeaving(true);
     setTimeout(() => { setStep((s) => s - 1); setLeaving(false); }, 140);
   };
-  const dismiss = () => hideOnboarding();
+  const dismiss = () => hideOnboarding(user?.id);
 
   return (
     /* Backdrop */

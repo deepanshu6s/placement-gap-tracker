@@ -12,7 +12,7 @@ export const FacultyLayout = () => {
       <Navbar />
       <div className="flex-1 flex overflow-hidden">
         <Sidebar role="faculty" />
-        <div className="flex-1 overflow-y-auto" style={{ background: 'var(--bg-app)' }}>
+        <div className="flex-1 min-w-0 overflow-y-auto" style={{ background: 'var(--bg-app)' }}>
           <Outlet />
         </div>
       </div>

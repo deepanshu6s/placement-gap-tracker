@@ -8,6 +8,7 @@ import {
   UserCheck,
   Users,
   Target,
+  FolderGit2,
   X,
   Sparkles,
 } from 'lucide-react';
@@ -27,12 +28,15 @@ export const Sidebar = ({ role = 'student' }) => {
   const studentLinks = [
     { to: '/student',              label: 'Dashboard & Readiness', icon: LayoutDashboard },
     { to: '/student/roles',        label: 'Career Roles & Skills',  icon: Compass },
+    { to: '/student/roadmap',      label: 'My Roadmap',             icon: Target },
+    { to: '/student/evidence',     label: 'My Evidence',            icon: FolderGit2 },
     { to: '/student/preparation',  label: 'Preparation Tracker',    icon: CalendarCheck },
     { to: '/student/profile-setup',label: 'My Academic Profile',    icon: UserCheck },
   ];
 
   const facultyLinks = [
-    { to: '/faculty', label: 'Cohort Readiness & Roster', icon: Users },
+    { to: '/faculty',          label: 'Cohort Readiness & Roster', icon: Users },
+    { to: '/faculty/evidence', label: 'Evidence Review',           icon: FolderGit2 },
   ];
 
   const links = role === 'faculty' ? facultyLinks : studentLinks;
@@ -51,7 +55,7 @@ export const Sidebar = ({ role = 'student' }) => {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-40 w-60 flex flex-col border-r transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:static top-0 bottom-0 left-0 z-50 lg:z-30 w-60 flex-shrink-0 flex flex-col border-r transition-transform duration-200 ease-in-out ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } min-h-[calc(100vh-4rem)]`}
         style={{

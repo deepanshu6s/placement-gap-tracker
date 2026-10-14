@@ -79,7 +79,39 @@ const FacultyController = {
       if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
       next(err);
     }
-  }
+  },
+
+  async getEvidenceQueue(req, res, next) {
+    try {
+      const EvidenceService = require('../services/evidence.service');
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const queue = await EvidenceService.getFacultyQueue(profile.id, profile.is_tpo, req.query.status);
+      return successResponse(res, queue);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async reviewEvidence(req, res, next) {
+    try {
+      const EvidenceService = require('../services/evidence.service');
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const reviewed = await EvidenceService.reviewEvidence(
+        profile.id,
+        profile.is_tpo,
+        req.params.id,
+        req.body
+      );
+      return successResponse(res, reviewed);
+    } catch (err) {
+      if (err.message === 'Evidence submission not found') return errorResponse(res, 404, 'NOT_FOUND', err.message);
+      if (err.message?.includes('authorization')) return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      if (err.message?.includes('Invalid review status') || err.message?.includes('required')) {
+        return errorResponse(res, 400, 'BAD_REQUEST', err.message);
+      }
+      next(err);
+    }
+  },
 };
 
 module.exports = FacultyController;

@@ -16,5 +16,11 @@ export const assessmentService = {
   getResult: async (attemptId) => {
     const response = await api.get(`/assessments/${attemptId}/result`);
     return response.data.data;
-  }
+  },
+  getAttemptReview: async (attemptId) => {
+    const response = await api.get(`/assessments/attempts/${attemptId}/review`);
+    return response.data.data;
+  },
 };
+
+export default assessmentService;

@@ -6,6 +6,7 @@ const ONBOARDING_KEY = 'pt-onboarding-seen';
 
 const applyTheme = (theme) => {
   const root = document.documentElement;
+  root.setAttribute('data-theme', theme);
   if (theme === 'light') {
     root.classList.add('light');
     root.classList.remove('dark');
@@ -52,15 +53,27 @@ export const useUiStore = create((set) => {
     // ── Onboarding ────────────────────────────────────────────────────────────
     onboardingVisible: false,
     showOnboarding: () => set({ onboardingVisible: true }),
-    hideOnboarding: () => {
-      try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch {}
+    hideOnboarding: (userId) => {
+      try {
+        const key = userId ? `${ONBOARDING_KEY}-${userId}` : ONBOARDING_KEY;
+        localStorage.setItem(key, 'true');
+      } catch {}
       set({ onboardingVisible: false });
     },
-    checkAndShowOnboarding: () => {
+    checkAndShowOnboarding: (userId) => {
       try {
-        const seen = localStorage.getItem(ONBOARDING_KEY);
+        const key = userId ? `${ONBOARDING_KEY}-${userId}` : ONBOARDING_KEY;
+        const seen = localStorage.getItem(key);
         if (!seen) set({ onboardingVisible: true });
       } catch {}
+    },
+    hasSeenOnboarding: (userId) => {
+      try {
+        const key = userId ? `${ONBOARDING_KEY}-${userId}` : ONBOARDING_KEY;
+        return localStorage.getItem(key) === 'true';
+      } catch {
+        return false;
+      }
     },
   };
 });

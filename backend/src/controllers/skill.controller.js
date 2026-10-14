@@ -22,6 +22,16 @@ const SkillController = {
     }
   },
 
+  async getDetail(req, res, next) {
+    try {
+      const detail = await SkillService.getSkillDetail(req.params.id, req.user?.userId);
+      return successResponse(res, detail);
+    } catch (err) {
+      if (err.message === 'Skill not found') return errorResponse(res, 404, 'NOT_FOUND', err.message);
+      next(err);
+    }
+  },
+
   async create(req, res, next) {
     try {
       const skill = await SkillService.createSkill(req.body);

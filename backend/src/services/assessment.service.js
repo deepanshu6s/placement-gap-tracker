@@ -153,6 +153,17 @@ const AssessmentService = {
       throw new Error('Attempt not found');
     }
     return await AssessmentRepository.getAttemptResult(attemptId);
+  },
+
+  async getAttemptReview(attemptId, studentId) {
+    const attempt = await AssessmentRepository.findAttemptById(attemptId);
+    if (!attempt || attempt.student_id !== studentId) {
+      throw new Error('Attempt not found');
+    }
+    if (attempt.status !== 'completed' && attempt.status !== 'timed_out') {
+      throw new Error('Attempt is still in progress');
+    }
+    return await AssessmentRepository.getAttemptReview(attemptId);
   }
 };
 

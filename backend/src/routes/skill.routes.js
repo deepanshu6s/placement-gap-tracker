@@ -11,6 +11,7 @@ router.use(authenticate);
 
 // Publicly readable
 router.get('/', SkillController.getAll);
+router.get('/:id/detail', SkillController.getDetail);
 router.get('/:id', SkillController.getById);
 router.get('/:id/config', SkillController.getConfig);
 router.get('/:id/question-counts', SkillController.getQuestionCounts);

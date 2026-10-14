@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -11,6 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   CheckCircle2,
+  ExternalLink,
+  ArrowRight,
 } from 'lucide-react';
 
 export const RolesCataloguePage = () => {
@@ -111,15 +114,18 @@ const RoleCard = ({ role, isTargetRole, onSelectTarget }) => {
   return (
     <Card
       hover
-      className={`bg-[#191512] border transition-colors flex flex-col justify-between ${
-        isTargetRole
-          ? 'border-[#FF6A2A]'
-          : 'border-[#34271F]'
-      }`}
+      className="flex flex-col justify-between transition-colors"
+      style={{
+        borderColor: isTargetRole ? 'var(--color-orange)' : 'var(--border-primary)',
+        boxShadow: isTargetRole ? '0 0 0 1px var(--color-orange)' : 'var(--shadow-card)',
+      }}
     >
       <div>
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="p-2 rounded-lg bg-[#241B16] text-[#FF6A2A]">
+          <div
+            className="p-2 rounded-lg"
+            style={{ background: 'var(--surface-hover)', color: 'var(--color-orange)' }}
+          >
             <Compass size={18} />
           </div>
           {isTargetRole ? (
@@ -131,30 +137,43 @@ const RoleCard = ({ role, isTargetRole, onSelectTarget }) => {
               variant="ghost"
               size="sm"
               onClick={onSelectTarget}
-              className="text-xs text-[#C3B7AD] hover:text-[#FF6A2A]"
+              className="text-xs"
+              style={{ color: 'var(--text-secondary)' }}
             >
               Set as Target
             </Button>
           )}
         </div>
 
-        <h3 className="text-base sm:text-lg font-bold text-[#F5F0EB] mb-1.5">{role.name}</h3>
-        <p className="text-xs sm:text-sm text-[#C3B7AD] leading-relaxed line-clamp-3">
+        <h3
+          className="text-base sm:text-lg font-bold mb-1.5"
+          style={{ color: 'var(--text-primary)' }}
+        >
+          {role.name}
+        </h3>
+        <p
+          className="text-xs sm:text-sm leading-relaxed line-clamp-3"
+          style={{ color: 'var(--text-secondary)' }}
+        >
           {role.description || 'Comprehensive placement pathway with curated skill criteria.'}
         </p>
       </div>
 
-      <div className="mt-4 pt-3.5 border-t border-[#34271F]">
+      <div className="mt-4 pt-3.5 border-t" style={{ borderColor: 'var(--border-primary)' }}>
         <button
           onClick={handleToggle}
-          className="w-full flex items-center justify-between text-xs font-semibold text-[#FF6A2A] hover:text-[#FF7B43] transition-colors py-1 focus:outline-none"
+          className="w-full flex items-center justify-between text-xs font-semibold py-1 focus:outline-none transition-colors"
+          style={{ color: 'var(--color-orange)' }}
         >
           <span>{expanded ? 'Hide Required Skills' : 'View Skill Criteria'}</span>
           {expanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
 
         {expanded && (
-          <div className="mt-2.5 space-y-2 pt-2.5 border-t border-[#34271F] animate-fade-in">
+          <div
+            className="mt-2.5 space-y-2 pt-2.5 border-t animate-fade-in"
+            style={{ borderColor: 'var(--border-primary)' }}
+          >
             {loading ? (
               <div className="flex justify-center py-3">
                 <Spinner size="sm" />
@@ -162,22 +181,45 @@ const RoleCard = ({ role, isTargetRole, onSelectTarget }) => {
             ) : details?.requirements?.length > 0 ? (
               <div className="space-y-1.5">
                 {details.requirements.map((req) => (
-                  <div
+                  <Link
                     key={req.skill_id}
-                    className="flex items-center justify-between p-2 rounded bg-[#14110F] border border-[#34271F] text-xs"
+                    to={`/student/skills/${req.skill_id}`}
+                    className="flex items-center justify-between p-2.5 rounded-lg border text-xs group transition-all"
+                    style={{
+                      background: 'var(--surface-input)',
+                      borderColor: 'var(--border-primary)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-active)';
+                      e.currentTarget.style.background = 'var(--surface-hover)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-primary)';
+                      e.currentTarget.style.background = 'var(--surface-input)';
+                    }}
                   >
-                    <span className="font-semibold text-[#F5F0EB]">{req.skill_name}</span>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="font-semibold group-hover:text-[var(--color-orange)] transition-colors"
+                        style={{ color: 'var(--text-primary)' }}
+                      >
+                        {req.skill_name}
+                      </span>
+                      <ExternalLink size={12} style={{ color: 'var(--text-muted)' }} />
+                    </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[#FFC857]">Req: {req.required_level}%</span>
+                      <span style={{ color: 'var(--color-amber)', fontWeight: 600 }}>
+                        Req: {req.required_level}%
+                      </span>
                       <Badge variant="neutral" size="sm">
                         Weight: {req.weight}
                       </Badge>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[#A3978D] italic py-2">
+              <p className="text-xs italic py-2" style={{ color: 'var(--text-muted)' }}>
                 No individual skill requirements configured for this role yet.
               </p>
             )}

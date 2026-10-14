@@ -47,6 +47,18 @@ const AssessmentController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  async getAttemptReview(req, res, next) {
+    try {
+      const review = await AssessmentService.getAttemptReview(req.params.attemptId, req.user.studentProfileId);
+      if (!review) return errorResponse(res, 404, 'NOT_FOUND', 'Review not found');
+      return successResponse(res, review);
+    } catch (err) {
+      if (err.message === 'Attempt not found') return errorResponse(res, 404, 'NOT_FOUND', err.message);
+      if (err.message.includes('still in progress')) return errorResponse(res, 400, 'BAD_REQUEST', err.message);
+      next(err);
+    }
   }
 };
 

@@ -2,19 +2,19 @@ import React from 'react';
 
 export const Badge = ({ children, variant = 'neutral', size = 'md', className = '' }) => {
   const variants = {
-    neutral: 'bg-[#241B16] text-[#C3B7AD] border-[#34271F]',
-    orange: 'bg-[#FF6A2A]/15 text-[#FF6A2A] border-[#FF6A2A]/35',
-    amber: 'bg-[#FFC857]/15 text-[#FFC857] border-[#FFC857]/35',
-    coral: 'bg-[#FF526F]/15 text-[#FF526F] border-[#FF526F]/35',
+    neutral: 'bg-[var(--surface-hover)] text-[var(--text-secondary)] border-[var(--border-primary)]',
+    orange: 'bg-[var(--color-orange)]/15 text-[var(--color-orange)] border-[var(--color-orange)]/35',
+    amber: 'bg-[var(--color-amber)]/15 text-[var(--color-amber)] border-[var(--color-amber)]/35',
+    coral: 'bg-[var(--color-coral)]/15 text-[var(--color-coral)] border-[var(--color-coral)]/35',
 
     // Backward-compatible mappings into warm palette
-    cyan: 'bg-[#FF6A2A]/15 text-[#FF6A2A] border-[#FF6A2A]/35',
-    lime: 'bg-[#FFC857]/15 text-[#FFC857] border-[#FFC857]/35',
-    success: 'bg-[#FF6A2A]/15 text-[#FF6A2A] border-[#FF6A2A]/35',
-    warning: 'bg-[#FFC857]/15 text-[#FFC857] border-[#FFC857]/35',
-    danger: 'bg-[#FF526F]/15 text-[#FF526F] border-[#FF526F]/35',
-    error: 'bg-[#FF526F]/15 text-[#FF526F] border-[#FF526F]/35',
-    info: 'bg-[#241B16] text-[#C3B7AD] border-[#34271F]',
+    cyan: 'bg-[var(--color-orange)]/15 text-[var(--color-orange)] border-[var(--color-orange)]/35',
+    lime: 'bg-[var(--color-amber)]/15 text-[var(--color-amber)] border-[var(--color-amber)]/35',
+    success: 'bg-[var(--color-orange)]/15 text-[var(--color-orange)] border-[var(--color-orange)]/35',
+    warning: 'bg-[var(--color-amber)]/15 text-[var(--color-amber)] border-[var(--color-amber)]/35',
+    danger: 'bg-[var(--color-coral)]/15 text-[var(--color-coral)] border-[var(--color-coral)]/35',
+    error: 'bg-[var(--color-coral)]/15 text-[var(--color-coral)] border-[var(--color-coral)]/35',
+    info: 'bg-[var(--surface-hover)] text-[var(--text-secondary)] border-[var(--border-primary)]',
   };
 
   const sizes = {

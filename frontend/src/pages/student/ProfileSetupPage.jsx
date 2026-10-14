@@ -134,7 +134,7 @@ export const ProfileSetupPage = () => {
       subtitle="Complete your student credentials and choose your target career benchmark"
     >
       <div className="max-w-2xl mx-auto w-full">
-        <Card className="bg-[#191512] border-[#34271F]">
+        <Card>
           {error && (
             <Alert variant="error" title="Setup Incomplete" className="mb-5">
               {error}
@@ -144,9 +144,15 @@ export const ProfileSetupPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Section 1: Academic Identification */}
             <div>
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#34271F]">
-                <GraduationCap size={16} className="text-[#FF6A2A]" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#F5F0EB]">
+              <div
+                className="flex items-center gap-2 mb-3 pb-2 border-b"
+                style={{ borderColor: 'var(--border-primary)' }}
+              >
+                <GraduationCap size={16} style={{ color: 'var(--color-orange)' }} />
+                <h3
+                  className="text-xs font-bold uppercase tracking-wider"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   1. Academic Information
                 </h3>
               </div>
@@ -177,7 +183,11 @@ export const ProfileSetupPage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   <div>
-                    <label htmlFor="branch" className="block text-xs sm:text-sm font-medium text-[#F5F0EB] mb-1.5">
+                    <label
+                      htmlFor="branch"
+                      className="block text-xs sm:text-sm font-medium mb-1.5"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
                       Department
                     </label>
                     <select
@@ -185,7 +195,20 @@ export const ProfileSetupPage = () => {
                       value={formData.branch}
                       onChange={handleChange}
                       disabled={loading}
-                      className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg px-3 py-2 text-[#F5F0EB] text-sm focus:outline-none transition-all duration-150"
+                      className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none transition-all duration-150 border"
+                      style={{
+                        background: 'var(--surface-input)',
+                        borderColor: 'var(--border-primary)',
+                        color: 'var(--text-primary)',
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--color-orange)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196, 90, 24, 0.15)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--border-primary)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                     >
                       <option value="CS">Computer Science (CS)</option>
                       <option value="IT">Information Tech (IT)</option>
@@ -226,24 +249,47 @@ export const ProfileSetupPage = () => {
 
             {/* Section 2: Target Career Pathway */}
             <div>
-              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#34271F]">
-                <Briefcase size={16} className="text-[#FFC857]" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#F5F0EB]">
+              <div
+                className="flex items-center gap-2 mb-3 pb-2 border-b"
+                style={{ borderColor: 'var(--border-primary)' }}
+              >
+                <Briefcase size={16} style={{ color: 'var(--color-amber)' }} />
+                <h3
+                  className="text-xs font-bold uppercase tracking-wider"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   2. Target Career Pathway
                 </h3>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="target_role_id" className="block text-xs sm:text-sm font-medium text-[#F5F0EB]">
+                <label
+                  htmlFor="target_role_id"
+                  className="block text-xs sm:text-sm font-medium"
+                  style={{ color: 'var(--text-primary)' }}
+                >
                   Select Target Recruitment Role
                 </label>
-                <p className="text-xs text-[#A3978D]">
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   Your skill gap analysis and readiness calculations will be benchmarked against this role.
                 </p>
 
                 <select
                   id="target_role_id"
-                  className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg px-3.5 py-2.5 text-[#F5F0EB] text-sm focus:outline-none transition-all duration-150"
+                  className="w-full rounded-lg px-3.5 py-2.5 text-sm focus:outline-none transition-all duration-150 border"
+                  style={{
+                    background: 'var(--surface-input)',
+                    borderColor: 'var(--border-primary)',
+                    color: 'var(--text-primary)',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--color-orange)';
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196, 90, 24, 0.15)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-primary)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                   value={formData.target_role_id}
                   onChange={handleChange}
                   required
@@ -260,8 +306,11 @@ export const ProfileSetupPage = () => {
             </div>
 
             {/* Submit Bar */}
-            <div className="pt-4 border-t border-[#34271F] flex flex-col sm:flex-row items-center justify-between gap-3">
-              <span className="text-xs text-[#A3978D]">
+            <div
+              className="pt-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3"
+              style={{ borderColor: 'var(--border-primary)' }}
+            >
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                 You can change your target role later from the role catalogue.
               </span>
 

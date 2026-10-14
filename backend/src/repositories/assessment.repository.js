@@ -214,6 +214,52 @@ const AssessmentRepository = {
     return result.rows[0] || null;
   },
 
+  /**
+   * Detailed attempt review: questions, student answers, correct answers, and explanations.
+   */
+  async getAttemptReview(attemptId) {
+    const attempt = await this.getAttemptResult(attemptId);
+    if (!attempt) return null;
+
+    const questionsResult = await query(
+      `SELECT
+         q.id AS question_id,
+         q.question_text,
+         q.difficulty,
+         q.concept_tested,
+         q.explanation,
+         aq.display_order,
+         aans.selected_option_id,
+         sel_qo.option_text AS selected_option_text,
+         COALESCE(aans.is_correct, false) AS is_correct,
+         corr_qo.id AS correct_option_id,
+         corr_qo.option_text AS correct_option_text,
+         json_agg(
+           json_build_object(
+             'id', qo.id,
+             'option_text', qo.option_text,
+             'is_correct', qo.is_correct,
+             'display_order', qo.display_order
+           ) ORDER BY qo.display_order ASC
+         ) AS options
+       FROM attempt_questions aq
+       JOIN questions q ON aq.question_id = q.id
+       LEFT JOIN attempt_answers aans ON aans.attempt_id = aq.attempt_id AND aans.question_id = q.id
+       LEFT JOIN question_options sel_qo ON sel_qo.id = aans.selected_option_id
+       LEFT JOIN question_options corr_qo ON corr_qo.question_id = q.id AND corr_qo.is_correct = true
+       JOIN question_options qo ON qo.question_id = q.id
+       WHERE aq.attempt_id = $1
+       GROUP BY q.id, aq.display_order, aans.selected_option_id, sel_qo.option_text, aans.is_correct, corr_qo.id, corr_qo.option_text
+       ORDER BY aq.display_order ASC`,
+      [attemptId]
+    );
+
+    return {
+      attempt,
+      questions: questionsResult.rows,
+    };
+  },
+
   // Verify option belongs to question (IDOR prevention)
   async verifyOptionOwnership(questionId, optionId) {
     const result = await query(

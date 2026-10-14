@@ -15,4 +15,8 @@ router.get('/students/:studentId/skill-gaps', FacultyController.getStudentSkillG
 router.get('/students/:studentId/preparation', FacultyController.getStudentPrepAggregate);
 router.get('/analytics/batch', FacultyController.getBatchAnalytics);
 
+// Faculty evidence review queue & actions
+router.get('/evidence', FacultyController.getEvidenceQueue);
+router.put('/evidence/:id/review', FacultyController.reviewEvidence);
+
 module.exports = router;

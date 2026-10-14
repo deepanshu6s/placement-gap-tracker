@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { PageWrapper } from '../../components/layout/PageWrapper';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
@@ -7,24 +8,33 @@ import { Alert } from '../../components/ui/Alert';
 import { Badge } from '../../components/ui/Badge';
 import { Spinner } from '../../components/ui/Spinner';
 import { preparationService } from '../../services/preparationService';
+import { studentService, roleService } from '../../services/studentService';
+import { skillService } from '../../services/skillService';
 import {
   CalendarCheck,
   Clock,
   ExternalLink,
   Plus,
   Lock,
+  BookOpen,
+  Target,
+  ArrowRight,
 } from 'lucide-react';
 
 export const PreparationPage = () => {
+  const [searchParams] = useSearchParams();
+  const prefilledSkillId = searchParams.get('skillId') || '';
+
   const [logs, setLogs] = useState([]);
+  const [availableSkills, setAvailableSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
   const [formData, setFormData] = useState({
-    skill_id: '',
-    activity_type: 'study',
+    skill_id: prefilledSkillId,
+    activity_type: 'practice',
     description: '',
     resource_url: '',
     hours_spent: '1.5',
@@ -32,18 +42,52 @@ export const PreparationPage = () => {
   });
 
   useEffect(() => {
-    const fetchLogs = async () => {
+    let isMounted = true;
+
+    const init = async () => {
       try {
-        const data = await preparationService.getLogs();
-        setLogs(Array.isArray(data) ? data : []);
+        const [logsData, profile] = await Promise.all([
+          preparationService.getLogs().catch(() => []),
+          studentService.getProfile().catch(() => null),
+        ]);
+
+        if (!isMounted) return;
+        setLogs(Array.isArray(logsData) ? logsData : []);
+
+        // Load skills for student's target role or all skills
+        if (profile?.target_role_id) {
+          const roleDetails = await roleService.getRoleDetails(profile.target_role_id).catch(() => null);
+          if (roleDetails?.requirements) {
+            setAvailableSkills(roleDetails.requirements.map((r) => ({ id: r.skill_id, name: r.skill_name })));
+          }
+        }
+
+        // If no role skills, fallback to all skills
+        if (availableSkills.length === 0) {
+          const allSkills = await skillService.getAllSkills().catch(() => []);
+          if (isMounted && Array.isArray(allSkills) && allSkills.length > 0) {
+            setAvailableSkills(allSkills);
+          }
+        }
       } catch (err) {
-        console.error('Failed to load preparation logs', err);
+        console.error('Failed to load preparation data', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-    fetchLogs();
-  }, []);
+
+    init();
+    return () => {
+      isMounted = false;
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // If query param skillId changes
+  useEffect(() => {
+    if (prefilledSkillId) {
+      setFormData((prev) => ({ ...prev, skill_id: prefilledSkillId }));
+    }
+  }, [prefilledSkillId]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.id]: e.target.value });
 
@@ -78,10 +122,10 @@ export const PreparationPage = () => {
       setSuccessMsg('Preparation activity recorded successfully.');
       setTimeout(() => setSuccessMsg(''), 4000);
 
-      // Reset form defaults
+      // Reset form
       setFormData({
-        skill_id: '',
-        activity_type: 'study',
+        skill_id: prefilledSkillId,
+        activity_type: 'practice',
         description: '',
         resource_url: '',
         hours_spent: '1.0',
@@ -101,7 +145,9 @@ export const PreparationPage = () => {
       <PageWrapper title="Preparation Tracker">
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Spinner size="lg" />
-          <p className="text-sm text-[#A3978D]">Loading activity history...</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Loading activity history...
+          </p>
         </div>
       </PageWrapper>
     );
@@ -110,59 +156,66 @@ export const PreparationPage = () => {
   return (
     <PageWrapper
       title="Student Preparation Tracker"
-      subtitle="Log your self-study routines, mock tests, and practice hours"
+      subtitle="Log your self-study routines, mock tests, and practice hours connected to target skills"
       badge={
         <Badge variant="orange" size="md">
           {totalHours.toFixed(1)} Total Hours Recorded
         </Badge>
       }
+      action={
+        <Link to="/student/roadmap">
+          <Button variant="secondary" size="sm" icon={Target}>
+            View Preparation Roadmap
+          </Button>
+        </Link>
+      }
     >
       <div className="space-y-6 sm:space-y-8">
         {/* Quick Top Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-          <Card hover className="bg-[#191512] border-[#34271F]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
-                Total Hours
-              </span>
-              <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+          <Card hover>
+            <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+              <span className="uppercase tracking-wider">Total Hours</span>
+              <div className="p-2 rounded-md" style={{ background: 'var(--surface-hover)', color: 'var(--color-orange)' }}>
                 <Clock size={16} />
               </div>
             </div>
-            <div className="mt-2.5 text-3xl font-extrabold text-[#F5F0EB]">
+            <div className="mt-2.5 text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
               {totalHours.toFixed(1)}h
             </div>
-            <p className="text-xs text-[#A3978D] mt-1">Logged study commitment</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              Logged study commitment
+            </p>
           </Card>
 
-          <Card hover className="bg-[#191512] border-[#34271F]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
-                Total Entries
-              </span>
-              <div className="p-2 rounded-md bg-[#241B16] text-[#FFC857]">
+          <Card hover>
+            <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+              <span className="uppercase tracking-wider">Total Entries</span>
+              <div className="p-2 rounded-md" style={{ background: 'var(--surface-hover)', color: 'var(--color-amber)' }}>
                 <CalendarCheck size={16} />
               </div>
             </div>
-            <div className="mt-2.5 text-3xl font-extrabold text-[#F5F0EB]">
+            <div className="mt-2.5 text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
               {logs.length}
             </div>
-            <p className="text-xs text-[#A3978D] mt-1">Activities recorded</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              Activities recorded
+            </p>
           </Card>
 
-          <Card hover className="bg-[#191512] border-[#34271F]">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#A3978D] uppercase tracking-wider">
-                Data Privacy
-              </span>
-              <div className="p-2 rounded-md bg-[#241B16] text-[#FF6A2A]">
+          <Card hover>
+            <div className="flex items-center justify-between text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+              <span className="uppercase tracking-wider">Data Privacy</span>
+              <div className="p-2 rounded-md" style={{ background: 'var(--surface-hover)', color: 'var(--color-orange)' }}>
                 <Lock size={16} />
               </div>
             </div>
-            <div className="mt-2.5 text-lg font-bold text-[#F5F0EB]">
+            <div className="mt-2.5 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
               100% Private Notes
             </div>
-            <p className="text-xs text-[#A3978D] mt-1">Faculty views aggregates only</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              Faculty views aggregates only
+            </p>
           </Card>
         </div>
 
@@ -173,7 +226,6 @@ export const PreparationPage = () => {
             <Card
               title="Log Study Activity"
               subtitle="Record personal problem solving and learning resource reviews"
-              className="bg-[#191512] border-[#34271F]"
             >
               {error && (
                 <Alert variant="error" className="mb-4">
@@ -187,19 +239,73 @@ export const PreparationPage = () => {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Target Skill selector */}
                 <div>
-                  <label htmlFor="activity_type" className="block text-xs sm:text-sm font-medium text-[#F5F0EB] mb-1.5">
+                  <label
+                    htmlFor="skill_id"
+                    className="block text-xs sm:text-sm font-medium mb-1.5"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    Target Skill (Optional)
+                  </label>
+                  <select
+                    id="skill_id"
+                    value={formData.skill_id}
+                    onChange={handleChange}
+                    className="w-full rounded-lg px-3.5 py-2 text-sm focus:outline-none transition-all duration-150 border"
+                    style={{
+                      background: 'var(--surface-input)',
+                      borderColor: 'var(--border-primary)',
+                      color: 'var(--text-primary)',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--color-orange)';
+                      e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196, 90, 24, 0.15)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-primary)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <option value="">-- General / Untargeted Study --</option>
+                    {availableSkills.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="activity_type"
+                    className="block text-xs sm:text-sm font-medium mb-1.5"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
                     Activity Type
                   </label>
                   <select
                     id="activity_type"
-                    className="w-full bg-[#14110F] border border-[#34271F] hover:border-[#65402C] focus:border-[#FF6A2A] focus:ring-2 focus:ring-[#FF6A2A]/20 rounded-lg px-3.5 py-2 text-[#F5F0EB] text-sm focus:outline-none transition-all duration-150"
+                    className="w-full rounded-lg px-3.5 py-2 text-sm focus:outline-none transition-all duration-150 border"
+                    style={{
+                      background: 'var(--surface-input)',
+                      borderColor: 'var(--border-primary)',
+                      color: 'var(--text-primary)',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--color-orange)';
+                      e.currentTarget.style.boxShadow = '0 0 0 3px rgba(196, 90, 24, 0.15)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--border-primary)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                     value={formData.activity_type}
                     onChange={handleChange}
                     required
                   >
-                    <option value="study">Conceptual Study</option>
                     <option value="practice">Hands-on Coding / Practice</option>
+                    <option value="study">Conceptual Study</option>
                     <option value="mock_test">Mock Test / Assessment</option>
                     <option value="video">Video Lecture / Course</option>
                     <option value="reading">Documentation / Reading</option>
@@ -267,21 +373,35 @@ export const PreparationPage = () => {
             <Card
               title="Activity History"
               subtitle="Chronological list of all logged preparation sessions"
-              className="bg-[#191512] border-[#34271F]"
             >
               {logs.length > 0 ? (
                 <div className="space-y-3">
                   {logs.map((log) => (
                     <div
                       key={log.id}
-                      className="p-3.5 rounded-lg bg-[#14110F] border border-[#34271F] hover:border-[#65402C] transition-colors"
+                      className="p-3.5 rounded-lg border transition-colors"
+                      style={{
+                        background: 'var(--surface-input)',
+                        borderColor: 'var(--border-primary)',
+                      }}
                     >
-                      <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
                         <div className="flex items-center gap-2">
                           <Badge variant="orange" size="sm">
                             {log.activity_type?.replace('_', ' ')}
                           </Badge>
-                          <span className="text-xs text-[#A3978D]">
+
+                          {log.skill_id && (
+                            <Link
+                              to={`/student/skills/${log.skill_id}`}
+                              className="text-xs font-semibold hover:underline transition-colors"
+                              style={{ color: 'var(--color-orange)' }}
+                            >
+                              {log.skill_name || 'View Skill'} &rarr;
+                            </Link>
+                          )}
+
+                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                             {new Date(log.activity_date).toLocaleDateString(undefined, {
                               weekday: 'short',
                               year: 'numeric',
@@ -290,28 +410,40 @@ export const PreparationPage = () => {
                             })}
                           </span>
                         </div>
-                        <span className="text-xs font-semibold text-[#FF6A2A] bg-[#241B16] px-2.5 py-0.5 rounded border border-[#34271F]">
+
+                        <span
+                          className="text-xs font-semibold px-2.5 py-0.5 rounded border"
+                          style={{
+                            background: 'var(--surface-hover)',
+                            borderColor: 'var(--border-primary)',
+                            color: 'var(--color-orange)',
+                          }}
+                        >
                           {log.hours_spent} Hours
                         </span>
                       </div>
 
                       {log.description ? (
-                        <p className="text-xs sm:text-sm text-[#F5F0EB] mb-2 leading-relaxed">
+                        <p className="text-xs sm:text-sm mb-2 leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                           {log.description}
                         </p>
                       ) : (
-                        <p className="text-xs text-[#A3978D] italic mb-2">
+                        <p className="text-xs italic mb-2" style={{ color: 'var(--text-muted)' }}>
                           No private notes recorded.
                         </p>
                       )}
 
                       {log.resource_url && (
-                        <div className="pt-2 border-t border-[#34271F] flex items-center justify-between text-xs">
+                        <div
+                          className="pt-2 border-t flex items-center justify-between text-xs"
+                          style={{ borderColor: 'var(--border-primary)' }}
+                        >
                           <a
                             href={log.resource_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-[#FF6A2A] hover:text-[#FF7B43] hover:underline font-medium"
+                            className="inline-flex items-center gap-1.5 hover:underline font-medium"
+                            style={{ color: 'var(--color-orange)' }}
                           >
                             <span>Study Material Link</span>
                             <ExternalLink size={12} />
@@ -322,10 +454,15 @@ export const PreparationPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="py-12 text-center text-[#A3978D] border border-dashed border-[#34271F] rounded-lg">
-                  <CalendarCheck size={36} className="mx-auto text-[#A3978D] mb-2" />
-                  <p className="text-sm font-semibold text-[#F5F0EB]">No Preparation Logged Yet</p>
-                  <p className="text-xs text-[#A3978D] max-w-sm mx-auto mt-1">
+                <div
+                  className="py-12 text-center border border-dashed rounded-lg"
+                  style={{ borderColor: 'var(--border-primary)' }}
+                >
+                  <CalendarCheck size={36} className="mx-auto mb-2" style={{ color: 'var(--text-muted)' }} />
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                    No Preparation Logged Yet
+                  </p>
+                  <p className="text-xs max-w-sm mx-auto mt-1" style={{ color: 'var(--text-muted)' }}>
                     Track your technical practice to build placement readiness momentum and keep an accurate record.
                   </p>
                 </div>

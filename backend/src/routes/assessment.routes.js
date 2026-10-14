@@ -28,8 +28,9 @@ router.post('/attempts', validateRequest(startAttemptSchema), AssessmentControll
 router.get('/:attemptId/questions', AssessmentController.getAttemptQuestions);
 router.get('/attempts/:attemptId/questions', AssessmentController.getAttemptQuestions);
 router.post('/:attemptId/submit', validateRequest(submitAttemptSchema), AssessmentController.submitAttempt);
-router.post('/attempts/:attemptId/submit', validateRequest(submitAttemptSchema), AssessmentController.submitAttempt);
 router.get('/:attemptId/result', AssessmentController.getAttemptResult);
 router.get('/attempts/:attemptId/result', AssessmentController.getAttemptResult);
+router.get('/:attemptId/review', AssessmentController.getAttemptReview);
+router.get('/attempts/:attemptId/review', AssessmentController.getAttemptReview);
 
 module.exports = router;
