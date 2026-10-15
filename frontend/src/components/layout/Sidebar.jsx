@@ -11,6 +11,7 @@ import {
   FolderGit2,
   X,
   Sparkles,
+  ListChecks,
 } from 'lucide-react';
 
 export const Sidebar = ({ role = 'student' }) => {
@@ -28,6 +29,7 @@ export const Sidebar = ({ role = 'student' }) => {
   const studentLinks = [
     { to: '/student',              label: 'Dashboard & Readiness', icon: LayoutDashboard },
     { to: '/student/roles',        label: 'Career Roles & Skills',  icon: Compass },
+    { to: '/student/skill-baseline',label: 'Skill Baseline',        icon: ListChecks },
     { to: '/student/roadmap',      label: 'My Roadmap',             icon: Target },
     { to: '/student/evidence',     label: 'My Evidence',            icon: FolderGit2 },
     { to: '/student/preparation',  label: 'Preparation Tracker',    icon: CalendarCheck },

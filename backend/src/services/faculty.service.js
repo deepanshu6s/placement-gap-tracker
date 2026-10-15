@@ -60,7 +60,14 @@ const FacultyService = {
     const prep = await PreparationRepository.getAggregateByScope(batchYear, branch);
     const prepTrend = await PreparationRepository.getWeeklyTrendByScope(batchYear, branch, 8);
 
+    const totalCriticalGaps = (gaps || []).reduce((sum, g) => sum + parseInt(g.critical_count || 0, 10), 0);
+    const avgReadiness = readiness?.average_readiness !== null && readiness?.average_readiness !== undefined
+      ? parseFloat(readiness.average_readiness)
+      : null;
+
     return {
+      avg_readiness: avgReadiness,
+      critical_gaps_count: totalCriticalGaps,
       skill_gaps: gaps,
       readiness_distribution: readiness,
       preparation_metrics: prep,

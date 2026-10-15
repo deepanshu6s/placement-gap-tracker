@@ -10,6 +10,7 @@ router.use(authorize(['faculty', 'admin'])); // Both can access
 
 router.get('/me', FacultyController.getProfile);
 router.get('/students', FacultyController.getStudents);
+router.get('/students/export', FacultyController.exportStudentsCSV);
 router.get('/students/:studentId', FacultyController.getStudentDetails);
 router.get('/students/:studentId/skill-gaps', FacultyController.getStudentSkillGaps);
 router.get('/students/:studentId/preparation', FacultyController.getStudentPrepAggregate);

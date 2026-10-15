@@ -12,5 +12,12 @@ export const facultyService = {
   getBatchAnalytics: async (batchYear, branch) => {
     const response = await api.get('/faculty/analytics/batch', { params: { batch_year: batchYear, branch } });
     return response.data.data;
-  }
+  },
+  exportStudentsCSV: async (batchYear, branch) => {
+    const response = await api.get('/faculty/students/export', {
+      params: { batch_year: batchYear, branch },
+      responseType: 'blob',
+    });
+    return response.data;
+  },
 };

@@ -6,6 +6,7 @@ import { skillService } from '../services/skillService';
 import { taskProgressService } from '../services/taskProgressService';
 import { evidenceService } from '../services/evidenceService';
 import { assessmentService } from '../services/assessmentService';
+import { facultyService } from '../services/facultyService';
 
 describe('Theme State Store & Persistence', () => {
   beforeEach(() => {
@@ -85,5 +86,12 @@ describe('Frontend Services Surface Definition (Task 3)', () => {
     expect(typeof assessmentService.getQuestions).toBe('function');
     expect(typeof assessmentService.submitAttempt).toBe('function');
     expect(typeof assessmentService.getAttemptReview).toBe('function');
+  });
+
+  it('facultyService defines getProfile, getStudents, getBatchAnalytics, and exportStudentsCSV', () => {
+    expect(typeof facultyService.getProfile).toBe('function');
+    expect(typeof facultyService.getStudents).toBe('function');
+    expect(typeof facultyService.getBatchAnalytics).toBe('function');
+    expect(typeof facultyService.exportStudentsCSV).toBe('function');
   });
 });

@@ -13,6 +13,7 @@ import {
   Search,
   Filter,
   GraduationCap,
+  Download,
 } from 'lucide-react';
 
 export const FacultyDashboardPage = () => {
@@ -20,12 +21,33 @@ export const FacultyDashboardPage = () => {
   const [students, setStudents] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState('');
 
   // Scoped filters
   const [batchYear, setBatchYear] = useState('2024');
   const [branch, setBranch] = useState('CS');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleExportCSV = async () => {
+    try {
+      setExporting(true);
+      const blob = await facultyService.exportStudentsCSV(parseInt(batchYear, 10), branch);
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'text/csv' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `cohort_roster_${branch}_${batchYear}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to export cohort CSV', err);
+      setError('Could not export cohort roster CSV. Please verify your faculty permissions.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const fetchFacultyData = async (selectedYear, selectedBranch) => {
     setLoading(true);
@@ -145,6 +167,17 @@ export const FacultyDashboardPage = () => {
 
               <Button variant="secondary" size="sm" type="submit">
                 Apply Scope
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
+                onClick={handleExportCSV}
+                disabled={exporting || students.length === 0}
+                icon={Download}
+              >
+                {exporting ? 'Exporting...' : 'Export Cohort CSV'}
               </Button>
             </div>
 
