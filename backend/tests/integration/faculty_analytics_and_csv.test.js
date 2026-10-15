@@ -113,4 +113,123 @@ describe('Faculty Analytics, Batch Scope & CSV Export Verification', () => {
 
     expect(analyticsRes.status).toBe(403);
   });
+
+  // =========================================================================
+  // TASK 4: Analytics Endpoints Integration Tests
+  // =========================================================================
+
+  it('7. GET /api/faculty/analytics/overview returns cohort summary metrics', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/overview?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('total_students');
+    expect(res.body.data).toHaveProperty('students_with_role');
+    expect(res.body.data).toHaveProperty('students_without_role');
+    expect(res.body.data).toHaveProperty('students_with_baseline');
+    expect(res.body.data).toHaveProperty('students_with_assessment');
+    expect(res.body.data).toHaveProperty('total_tasks_completed');
+    expect(res.body.data).toHaveProperty('evidence_pending_review');
+    expect(res.body.data).toHaveProperty('evidence_needs_revision');
+    expect(typeof res.body.data.total_students).toBe('number');
+  });
+
+  it('8. GET /api/faculty/analytics/role-distribution returns per-role student counts and readiness', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/role-distribution?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    if (res.body.data.length > 0) {
+      const first = res.body.data[0];
+      expect(first).toHaveProperty('role_name');
+      expect(first).toHaveProperty('student_count');
+      expect(typeof first.student_count).toBe('number');
+    }
+  });
+
+  it('9. GET /api/faculty/analytics/skill-gaps separates self-reported baseline from diagnostic scores', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/skill-gaps?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    if (res.body.data.length > 0) {
+      const row = res.body.data[0];
+      expect(row).toHaveProperty('skill_name');
+      expect(row).toHaveProperty('required_level');
+      expect(row).toHaveProperty('baseline_beginner');
+      expect(row).toHaveProperty('baseline_intermediate');
+      expect(row).toHaveProperty('baseline_proficient');
+      expect(row).toHaveProperty('baseline_missing');
+      expect(row).toHaveProperty('has_assessment');
+      expect(row).toHaveProperty('avg_diagnostic_score');
+      expect(row).toHaveProperty('gap_critical');
+    }
+  });
+
+  it('10. GET /api/faculty/analytics/student-support returns scoped student support indicators', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/student-support?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    if (res.body.data.length > 0) {
+      const student = res.body.data[0];
+      expect(student).toHaveProperty('full_name');
+      expect(student).toHaveProperty('support_indicators');
+      expect(Array.isArray(student.support_indicators)).toBe(true);
+      // Privacy check: ensure password_hash or sensitive auth tokens are never leaked
+      expect(student.password_hash).toBeUndefined();
+      expect(student.password).toBeUndefined();
+    }
+  });
+
+  it('11. GET /api/faculty/analytics/insights returns actionable suggestions or empty array', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/insights?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('12. GET /api/faculty/analytics/export returns structured CSV with overview, distribution, and skill gaps', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/export?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/text\/csv/);
+    expect(res.headers['content-disposition']).toMatch(/attachment; filename=/);
+    expect(res.text).toContain('Placement Readiness Analytics Export');
+    expect(res.text).toContain('OVERVIEW METRICS');
+    expect(res.text).toContain('ROLE DISTRIBUTION');
+    expect(res.text).toContain('SKILL GAP HEATMAP (Self-Reported)');
+  });
+
+  it('13. Out-of-scope access to analytics returns 403 for standard faculty', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/overview?batch_year=2099&branch=CIVIL')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('14. Unauthenticated access to analytics returns 401', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/overview?batch_year=2024&branch=CS');
+
+    expect(res.status).toBe(401);
+  });
 });

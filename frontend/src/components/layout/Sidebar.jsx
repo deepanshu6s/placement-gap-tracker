@@ -12,6 +12,7 @@ import {
   X,
   Sparkles,
   ListChecks,
+  BarChart3,
 } from 'lucide-react';
 
 export const Sidebar = ({ role = 'student' }) => {
@@ -37,8 +38,9 @@ export const Sidebar = ({ role = 'student' }) => {
   ];
 
   const facultyLinks = [
-    { to: '/faculty',          label: 'Cohort Readiness & Roster', icon: Users },
-    { to: '/faculty/evidence', label: 'Evidence Review',           icon: FolderGit2 },
+    { to: '/faculty',            label: 'Cohort Readiness & Roster', icon: Users     },
+    { to: '/faculty/evidence',   label: 'Evidence Review',           icon: FolderGit2 },
+    { to: '/faculty/analytics',  label: 'Placement Analytics',       icon: BarChart3  },
   ];
 
   const links = role === 'faculty' ? facultyLinks : studentLinks;

@@ -175,6 +175,174 @@ const FacultyController = {
       next(err);
     }
   },
+
+  /* =====================================================================
+   * ANALYTICS ENDPOINTS — Phase 1-4 of TASK 4
+   * All require authenticate + authorize(['faculty','admin']) via routes.
+   * All re-enforce scope restrictions via the service layer.
+   * ===================================================================== */
+
+  async getAnalyticsOverview(req, res, next) {
+    try {
+      const { batch_year, branch } = req.query;
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const overview = await FacultyService.getAnalyticsOverview(
+        profile.id,
+        profile.is_tpo,
+        batch_year ? parseInt(batch_year, 10) : null,
+        branch || null
+      );
+      return successResponse(res, overview);
+    } catch (err) {
+      if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      next(err);
+    }
+  },
+
+  async getAnalyticsRoleDistribution(req, res, next) {
+    try {
+      const { batch_year, branch } = req.query;
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const distribution = await FacultyService.getAnalyticsRoleDistribution(
+        profile.id,
+        profile.is_tpo,
+        batch_year ? parseInt(batch_year, 10) : null,
+        branch || null
+      );
+      return successResponse(res, distribution);
+    } catch (err) {
+      if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      next(err);
+    }
+  },
+
+  async getAnalyticsSkillGaps(req, res, next) {
+    try {
+      const { batch_year, branch, role_id } = req.query;
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const heatmap = await FacultyService.getAnalyticsSkillGaps(
+        profile.id,
+        profile.is_tpo,
+        batch_year ? parseInt(batch_year, 10) : null,
+        branch || null,
+        role_id || null
+      );
+      return successResponse(res, heatmap);
+    } catch (err) {
+      if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      next(err);
+    }
+  },
+
+  async getStudentSupportList(req, res, next) {
+    try {
+      const { batch_year, branch } = req.query;
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const list = await FacultyService.getStudentSupportList(
+        profile.id,
+        profile.is_tpo,
+        batch_year ? parseInt(batch_year, 10) : null,
+        branch || null
+      );
+      return successResponse(res, list);
+    } catch (err) {
+      if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      next(err);
+    }
+  },
+
+  async getAnalyticsInsights(req, res, next) {
+    try {
+      const { batch_year, branch } = req.query;
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const insights = await FacultyService.getAnalyticsInsights(
+        profile.id,
+        profile.is_tpo,
+        batch_year ? parseInt(batch_year, 10) : null,
+        branch || null
+      );
+      return successResponse(res, insights);
+    } catch (err) {
+      if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      next(err);
+    }
+  },
+
+  /**
+   * Comprehensive analytics export: cohort overview + role distribution + skill gaps
+   * as a structured CSV. Separate from the student roster export.
+   */
+  async exportAnalyticsCSV(req, res, next) {
+    try {
+      const { batch_year, branch } = req.query;
+      const profile = await FacultyService.getProfile(req.user.userId);
+      const batchYearInt = batch_year ? parseInt(batch_year, 10) : null;
+
+      const [overview, roleDistrib, skillGaps] = await Promise.all([
+        FacultyService.getAnalyticsOverview(profile.id, profile.is_tpo, batchYearInt, branch || null),
+        FacultyService.getAnalyticsRoleDistribution(profile.id, profile.is_tpo, batchYearInt, branch || null),
+        FacultyService.getAnalyticsSkillGaps(profile.id, profile.is_tpo, batchYearInt, branch || null, null),
+      ]);
+
+      const sanitize = (v) => {
+        if (v === null || v === undefined) return '';
+        const s = String(v).trim();
+        const safe = /^[=+@-]/.test(s) ? `'${s}` : s;
+        return (safe.includes(',') || safe.includes('"') || safe.includes('\n'))
+          ? `"${safe.replace(/"/g, '""')}"` : safe;
+      };
+
+      const lines = [
+        `Placement Readiness Analytics Export`,
+        `Generated: ${new Date().toISOString()}`,
+        `Scope: ${branch || 'All branches'} | Batch: ${batch_year || 'All batches'}`,
+        ``,
+        `OVERVIEW METRICS`,
+        `Total Students,${overview.total_students}`,
+        `Students with Target Role,${overview.students_with_role}`,
+        `Students with Skill Baseline,${overview.students_with_baseline}`,
+        `Students with Diagnostic Assessment,${overview.students_with_assessment}`,
+        `Total Learning Tasks Completed,${overview.total_tasks_completed}`,
+        `Evidence Pending Review,${overview.evidence_pending_review}`,
+        `Evidence Needing Revision,${overview.evidence_needs_revision}`,
+        `Average Readiness Score,${overview.avg_readiness_score !== null ? `${Math.round(overview.avg_readiness_score)}%` : 'N/A'}`,
+        ``,
+        `ROLE DISTRIBUTION`,
+        `Role Name,Student Count,Avg Readiness (%)`,
+        ...roleDistrib.map(r => [
+          sanitize(r.role_name),
+          sanitize(r.student_count),
+          sanitize(r.avg_readiness !== null ? Math.round(r.avg_readiness) : 'N/A'),
+        ].join(',')),
+        ``,
+        `SKILL GAP HEATMAP (Self-Reported)`,
+        `Skill,Role,Required Level,Beginner,Intermediate,Proficient,Not Sure,No Baseline,Has Assessment,Avg Diagnostic Score,Critical Gaps`,
+        ...skillGaps.map(sg => [
+          sanitize(sg.skill_name),
+          sanitize(sg.role_name),
+          sanitize(sg.required_level),
+          sanitize(sg.baseline_beginner),
+          sanitize(sg.baseline_intermediate),
+          sanitize(sg.baseline_proficient),
+          sanitize(sg.baseline_not_sure),
+          sanitize(sg.baseline_missing),
+          sanitize(sg.has_assessment),
+          sanitize(sg.avg_diagnostic_score !== null ? Math.round(sg.avg_diagnostic_score) : 'N/A'),
+          sanitize(sg.gap_critical),
+        ].join(',')),
+      ];
+
+      const csvContent = lines.join('\r\n');
+      const filename = `analytics_report_${branch || 'all'}_${batch_year || 'all'}_${Date.now()}.csv`;
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.status(200).send(csvContent);
+    } catch (err) {
+      if (err.message === 'Unauthorized scope') return errorResponse(res, 403, 'FORBIDDEN', err.message);
+      next(err);
+    }
+  },
 };
 
 module.exports = FacultyController;

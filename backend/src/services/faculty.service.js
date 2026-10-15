@@ -2,6 +2,7 @@ const FacultyRepository = require('../repositories/faculty.repository');
 const StudentRepository = require('../repositories/student.repository');
 const GapRepository = require('../repositories/gap.repository');
 const PreparationRepository = require('../repositories/preparation.repository');
+const AnalyticsRepository = require('../repositories/analytics.repository');
 
 const FacultyService = {
   async getProfile(userId) {
@@ -73,7 +74,70 @@ const FacultyService = {
       preparation_metrics: prep,
       weekly_prep_trend: prepTrend
     };
-  }
+  },
+
+  /**
+   * Comprehensive analytics overview — summary cards data.
+   * Scope-enforced: non-TPO faculty must supply matching batchYear + branch.
+   */
+  async getAnalyticsOverview(facultyProfileId, isTpo, batchYear, branch) {
+    if (!isTpo && batchYear && branch) {
+      const hasScope = await FacultyRepository.hasScope(facultyProfileId, batchYear, branch);
+      if (!hasScope) throw new Error('Unauthorized scope');
+    }
+    const effectiveBatch  = isTpo ? batchYear  : batchYear;
+    const effectiveBranch = isTpo ? branch     : branch;
+    return AnalyticsRepository.getOverview(effectiveBatch, effectiveBranch);
+  },
+
+  /**
+   * Role distribution — how many students target each career role.
+   * Scope-enforced the same way.
+   */
+  async getAnalyticsRoleDistribution(facultyProfileId, isTpo, batchYear, branch) {
+    if (!isTpo && batchYear && branch) {
+      const hasScope = await FacultyRepository.hasScope(facultyProfileId, batchYear, branch);
+      if (!hasScope) throw new Error('Unauthorized scope');
+    }
+    return AnalyticsRepository.getRoleDistribution(batchYear, branch);
+  },
+
+  /**
+   * Skill-gap heatmap — self-reported vs diagnostic per skill.
+   * Scope-enforced.
+   */
+  async getAnalyticsSkillGaps(facultyProfileId, isTpo, batchYear, branch, roleId) {
+    if (!isTpo && batchYear && branch) {
+      const hasScope = await FacultyRepository.hasScope(facultyProfileId, batchYear, branch);
+      if (!hasScope) throw new Error('Unauthorized scope');
+    }
+    return AnalyticsRepository.getSkillGapHeatmap(batchYear, branch, roleId || null);
+  },
+
+  /**
+   * Student support list — individual rows with support indicators.
+   * Scope passed to repository so it enforces at SQL level.
+   */
+  async getStudentSupportList(facultyProfileId, isTpo, batchYear, branch) {
+    // For non-TPO, at least one scope must match the supplied batch/branch
+    if (!isTpo && batchYear && branch) {
+      const hasScope = await FacultyRepository.hasScope(facultyProfileId, batchYear, branch);
+      if (!hasScope) throw new Error('Unauthorized scope');
+    }
+    return AnalyticsRepository.getStudentSupportList(facultyProfileId, isTpo, batchYear, branch);
+  },
+
+  /**
+   * Auto-generated insights derived from skill-gap heatmap.
+   * Scope-enforced same way as other analytics.
+   */
+  async getAnalyticsInsights(facultyProfileId, isTpo, batchYear, branch) {
+    if (!isTpo && batchYear && branch) {
+      const hasScope = await FacultyRepository.hasScope(facultyProfileId, batchYear, branch);
+      if (!hasScope) throw new Error('Unauthorized scope');
+    }
+    return AnalyticsRepository.getInsights(batchYear, branch);
+  },
 };
 
 module.exports = FacultyService;

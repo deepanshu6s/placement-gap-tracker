@@ -151,45 +151,103 @@ Tests:       12 passed (12)
 Duration:    6.46s
 ```
 
-### Production Build
-```
-vite v5.4.21 building for production...
-✓ 2539 modules transformed.
-dist/index.html                   1.11 kB │ gzip:   0.61 kB
-dist/assets/index-Dcl46Lui.css   30.14 kB │ gzip:   6.52 kB
-dist/assets/index-CqiYIP8R.js   884.51 kB │ gzip: 242.97 kB
-✓ built in 26.84s
-```
+---
+
+## 7. TASK 4: Faculty/TPO Analytics Dashboard & Cohort Intelligence (COMPLETED)
+
+### Overview of Completed Capabilities
+Task 4 introduces a dedicated, privacy-preserving, and scope-restricted **Faculty & TPO Analytics Dashboard** at `/faculty/analytics` that transforms raw student preparation and assessment data into actionable cohort intelligence.
+
+1. **Cohort Overview Section (`/api/faculty/analytics/overview`):**
+   - High-level metric cards: Total Students, Students with Target Role, Baseline Submitted, Diagnostic Assessed, Practical Tasks Completed, Evidence Submissions Pending Review, Evidence Needing Revision, and Average Readiness Score.
+   - Distinctly differentiates self-reported baseline coverage from diagnostic assessment attempts.
+   - Missing data is never treated as poor proficiency; students without target roles are clearly segregated.
+
+2. **Target Role Distribution View (`/api/faculty/analytics/role-distribution`):**
+   - Visual relative bars showing student distribution across target career roles.
+   - Each student is counted exactly once by their current target role.
+   - Per-role average placement readiness index.
+   - One-click filter integration to drill down into specific role cohorts.
+
+3. **Cohort Skill-Gap Heatmap (`/api/faculty/analytics/skill-gaps`):**
+   - Renders all role-required skills (rows) with role benchmarks and cohort metrics.
+   - **Rigorous Separation of Information:**
+     - **Self-Reported Baseline:** Breakdown of Beginner, Intermediate, Proficient, and Not Sure ratings.
+     - **Missing Information:** Explicit "No Baseline" column.
+     - **Diagnostic Assessment:** Count of students with actual assessment scores + cohort average diagnostic percentage.
+     - **Critical Gaps:** Real diagnostic gaps derived from the placement gap model (`critical`, `medium`, `small`).
+
+4. **Actionable Cohort Insights (`/api/faculty/analytics/insights`):**
+   - Deterministic rule-based insights generated dynamically from aggregate results (no hallucinated AI verdicts or hardcoded values).
+   - Generates actionable recommendations when statistical thresholds are satisfied with ≥3 students:
+     - Foundational workshops for high beginner concentrations (≥40%).
+     - Profile completion reminders for low baseline coverage (≥50% missing).
+     - Targeted practice sessions for critical diagnostic clusters.
+
+5. **Student Support View (`/api/faculty/analytics/student-support`):**
+   - Evidence-based student roster within the faculty's authorized batch/branch scope.
+   - Uses neutral, non-punitive support indicators (`Baseline pending`, `Low readiness score`, `X critical gap(s)`, `Evidence revision pending`).
+   - Zero leakage of passwords, tokens, or unrelated personal fields.
+
+6. **Secured Analytics CSV Export (`/api/faculty/analytics/export`):**
+   - Structured multi-section CSV report containing Overview Metrics, Role Distribution, and the complete Skill-Gap Heatmap.
+   - Protected against CSV formula injection by prepending single quotes to text starting with `=`, `+`, `-`, or `@`.
+   - Re-enforces scope and permissions server-side.
+
+7. **Performance Optimization:**
+   - Frontend bundle optimized via Vite Rollup `manualChunks`: separated `vendor`, `charts` (`recharts`), and `icons` (`lucide-react`).
+   - Main JavaScript bundle size dropped by **~74%** from **907 kB to 238 kB** (gzip: 47 kB), eliminating all bundle size warnings.
+
+### Automated Test Verification Summary
+
+- **Backend Integration Tests:** `tests/integration/`
+  - Total Test Suites: 6/6 passing
+  - Total Tests: **53 passing, 0 failing**
+  - Includes `faculty_analytics_and_csv.test.js` (14/14 passing tests verifying overview, role distribution, skill gaps, student support, insights, CSV export, scope restriction 403, and unauthenticated 401).
+- **Frontend Unit & Component Tests:** `src/test/`
+  - Total Test Suites: 4/4 passing
+  - Total Tests: **18 passing, 0 failing**
+  - Includes `facultyAnalytics.test.jsx` (5/5 passing tests verifying cards, distribution, heatmap, student support, filters, and export interaction).
+- **Production Build:**
+  - `npm run build` completed cleanly in 23.6s with 0 warnings and 0 errors.
 
 ---
 
-## 6. How to Run and Verify the Application
+## 8. How to Run and Verify the Application
 
-### Running Backend Server
+### 1. Database (Docker Compose)
+Ensure Docker Desktop is running and start PostgreSQL:
+```bash
+docker compose up -d postgres
+```
+
+### 2. Backend API Server
 ```bash
 cd backend
 npm run dev
-# Running on http://localhost:5000
+# Server running at http://localhost:5000
+# Health check: http://localhost:5000/api/health
 ```
 
-### Running Frontend Development Server
+### 3. Frontend Client
 ```bash
 cd frontend
 npm run dev
-# Running on http://localhost:5173
+# Vite client running at http://localhost:5173
 ```
 
-### Running Backend Tests
+### 4. Running Backend Test Suites
 ```bash
 npm --prefix backend test
 ```
 
-### Running Frontend Tests
+### 5. Running Frontend Test Suites
 ```bash
 npm --prefix frontend test
 ```
 
-### Verifying Production Build
+### 6. Production Bundle Build
 ```bash
 npm --prefix frontend run build
 ```
+

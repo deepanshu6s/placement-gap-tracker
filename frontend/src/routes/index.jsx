@@ -18,6 +18,7 @@ import { SkillDetailPage } from '../pages/student/SkillDetailPage';
 import { RoadmapPage } from '../pages/student/RoadmapPage';
 import { EvidencePortfolioPage } from '../pages/student/EvidencePortfolioPage';
 import { FacultyEvidenceReviewPage } from '../pages/faculty/FacultyEvidenceReviewPage';
+import { FacultyAnalyticsPage } from '../pages/faculty/FacultyAnalyticsPage';
 
 export const router = createBrowserRouter([
   {
@@ -102,6 +103,10 @@ export const router = createBrowserRouter([
           {
             path: 'evidence',
             element: <FacultyEvidenceReviewPage />,
+          },
+          {
+            path: 'analytics',
+            element: <FacultyAnalyticsPage />,
           },
           {
             path: '*',
