@@ -42,6 +42,10 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-postgres_password_dev}
       DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres_password_dev}@postgres:5432/${DB_NAME:-placement_tracker}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      REFRESH_TOKEN_EXPIRES_DAYS: ${REFRESH_TOKEN_EXPIRES_DAYS:-7}
     ports:
       - '5000:5000'
     volumes:
