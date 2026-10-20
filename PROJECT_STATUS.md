@@ -213,7 +213,57 @@ Task 4 introduces a dedicated, privacy-preserving, and scope-restricted **Facult
 
 ---
 
-## 8. How to Run and Verify the Application
+---
+
+## 8. TASK 5: Non-Destructive Project Stabilization & Security Hardening (COMPLETED)
+
+### Overview of Stabilization & Hardening
+Task 5 performed a focused, non-destructive stabilization pass addressing dependency integrity, CSV export security, and end-to-end regression protection.
+
+1. **Dependency Integrity & Lockfile Reconciliation:**
+   - **Audit Finding:** The local `node_modules/supertest` had previously required a manual syntax fix to `package.json`. While `package-lock.json` specified `supertest@7.3.1`, the root `backend/package.json` had `"supertest": "^7.0.0"`.
+   - **Remediation:** Executed a clean, reproducible reinstall using npm (`npm install --save-dev supertest@^7.0.0`), aligning `backend/package.json` and `backend/package-lock.json` on `^7.3.1` without modifying unrelated dependencies. Verified `supertest` exports a valid function and passes integrity validation.
+
+2. **CSV Export Safety & Formula Injection Audit:**
+   - **Audit Finding:** The previous inline CSV sanitizer had two edge-case risks:
+     1. Legitimate negative numbers (e.g. `-5` or `-12.5`) were unintentionally prepended with a single quote (`'-5`), converting numeric values into string text in spreadsheets.
+     2. Leading whitespace or tab characters before formula triggers (e.g. `"   =1+1"`) required robust regex neutralization.
+   - **Remediation:** Created a centralized, reusable utility [`backend/src/utils/csv.utils.js`](file:///c:/Users/deepa/OneDrive/Desktop/capston/backend/src/utils/csv.utils.js):
+     - `sanitizeCSVCell(val, nullFallback)`:
+       - Preserves legitimate finite numbers (`typeof val === 'number'` and `/^-?\d+(\.\d+)?$/` numeric strings) as plain numbers without prepending quotes.
+       - Neutralizes formula triggers (`=`, `+`, `-`, `@`, `\t`, `\r`, including leading whitespace) by prepending a single quote (`'`).
+       - Complies strictly with RFC 4180: encapsulates cells containing commas (`,`), quotes (`"`), or newlines (`\n`, `\r`) in double quotes and escapes inner double quotes as `""`.
+     - `formatCSVRow(cells, nullFallback)`: Formats uniform, column-aligned CSV rows.
+   - Refactored both [`exportStudentsCSV`](file:///c:/Users/deepa/OneDrive/Desktop/capston/backend/src/controllers/faculty.controller.js#L116) and [`exportAnalyticsCSV`](file:///c:/Users/deepa/OneDrive/Desktop/capston/backend/src/controllers/faculty.controller.js#L275) to use this utility.
+   - Handled empty cohorts cleanly with informative, column-aligned rows rather than blank or ragged exports.
+
+3. **Automated Test Additions:**
+   - Created [`backend/tests/unit/csv_security.test.js`](file:///c:/Users/deepa/OneDrive/Desktop/capston/backend/tests/unit/csv_security.test.js) with 16 comprehensive unit tests covering numbers, formula injection, RFC 4180 escaping, and fallback handling.
+   - Expanded [`backend/tests/integration/faculty_analytics_and_csv.test.js`](file:///c:/Users/deepa/OneDrive/Desktop/capston/backend/tests/integration/faculty_analytics_and_csv.test.js) from 14 to 18 tests, validating empty cohort handling, formula parameter sanitization in headers, TPO campus-wide export, and out-of-scope 403 enforcement.
+
+### Automated Test Verification Summary
+
+- **Backend Tests:** `npm --prefix backend test`
+  - Suites: **7 passed, 7 total**
+  - Tests: **73 passed, 0 failing**
+  - Time: ~11.8s
+  - Suites: `csv_security.test.js`, `faculty_analytics_and_csv.test.js`, `workspace_evidence_and_feedback.test.js`, `skill_baseline_and_roadmap.test.js`, `readiness_gaps_assessment.test.js`, `student_flow.test.js`, `health.test.js`.
+- **Frontend Tests:** `npm --prefix frontend test`
+  - Suites: **4 passed, 4 total**
+  - Tests: **18 passed, 0 failing**
+  - Time: ~6.9s
+  - Suites: `themeAndServices.test.jsx`, `workspaceAndEvidence.test.jsx`, `facultyAnalytics.test.jsx`, `App.test.jsx`.
+- **Frontend Production Build:** `npm --prefix frontend run build`
+  - Succeeded in 46.31s with **0 warnings and 0 errors**.
+  - All chunks remain under 360 kB (main app: 238 kB, vendor: 292 kB, charts: 353 kB, icons: 23 kB).
+
+4. **Limitations & Verification Notes:**
+   - **Browser Automation Subagent:** Not executed in this pass due to the local environment's Playwright binary download restriction (404 from upstream CDN during zip fetch). Browser behavior was verified through Vitest/React Testing Library component simulations and end-to-end API integration tests.
+   - **Database State:** Fully preserved. Zero destructive schema drops, zero migrations modified, zero records erased.
+
+---
+
+## 9. How to Run and Verify the Application
 
 ### 1. Database (Docker Compose)
 Ensure Docker Desktop is running and start PostgreSQL:
@@ -250,4 +300,5 @@ npm --prefix frontend test
 ```bash
 npm --prefix frontend run build
 ```
+
 

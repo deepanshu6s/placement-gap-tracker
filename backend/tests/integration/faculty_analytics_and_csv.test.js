@@ -232,4 +232,49 @@ describe('Faculty Analytics, Batch Scope & CSV Export Verification', () => {
 
     expect(res.status).toBe(401);
   });
+
+  it('15. Out-of-scope analytics export returns 403 Forbidden', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/export?batch_year=2099&branch=CIVIL')
+      .set('Authorization', `Bearer ${facultyToken}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('16. TPO administrator can access campus-wide analytics export', async () => {
+    const res = await request(app)
+      .get('/api/faculty/analytics/export?batch_year=2024&branch=CS')
+      .set('Authorization', `Bearer ${tpoToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/text\/csv/);
+    expect(res.text).toContain('Placement Readiness Analytics Export');
+  });
+
+  it('17. Empty cohort export produces a valid, structured CSV with clean headers and indicators', async () => {
+    // 2030 Batch has 0 students in the database
+    const res = await request(app)
+      .get('/api/faculty/analytics/export?batch_year=2030&branch=CS')
+      .set('Authorization', `Bearer ${tpoToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/text\/csv/);
+    expect(res.text).toContain('Total Students,0');
+    expect(res.text).toContain('OVERVIEW METRICS');
+    expect(res.text).toContain('ROLE DISTRIBUTION');
+    expect(res.text).toContain('(No roles recorded),0,N/A');
+    expect(res.text).toContain('SKILL GAP HEATMAP (Self-Reported)');
+  });
+
+  it('18. Scope parameters in CSV export header are sanitized against formula injection', async () => {
+    // Pass URL-encoded formula string %3D1%2B1 for '=1+1'
+    const res = await request(app)
+      .get('/api/faculty/analytics/export?batch_year=2024&branch=%3D1%2B1')
+      .set('Authorization', `Bearer ${tpoToken}`);
+
+    expect(res.status).toBe(200);
+    // Formula trigger '=' must be escaped with a single quote
+    expect(res.text).toContain("'=1+1");
+  });
 });

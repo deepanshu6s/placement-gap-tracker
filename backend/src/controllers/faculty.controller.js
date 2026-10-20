@@ -1,5 +1,6 @@
 const FacultyService = require('../services/faculty.service');
 const { successResponse, errorResponse } = require('../utils/response.utils');
+const { sanitizeCSVCell, formatCSVRow } = require('../utils/csv.utils');
 
 const FacultyController = {
   async getProfile(req, res, next) {
@@ -124,44 +125,31 @@ const FacultyController = {
         branch
       );
 
-      // Protect against CSV formula injection and handle delimiters
-      const sanitizeCSV = (val) => {
-        if (val === null || val === undefined) return 'N/A';
-        const str = String(val).trim();
-        let safe = str;
-        // Formula injection protection: prepend single quote if starting with =, +, -, @
-        if (/^[=+@-]/.test(safe)) {
-          safe = `'${safe}`;
-        }
-        if (safe.includes(',') || safe.includes('"') || safe.includes('\n')) {
-          return `"${safe.replace(/"/g, '""')}"`;
-        }
-        return safe;
-      };
-
       const headers = ['Student Name', 'Roll Number', 'Branch', 'Batch Year', 'Target Role', 'Readiness Score (%)', 'Readiness Status'];
-      const rows = students.map((s) => {
-        const score = s.readiness_score !== null && s.readiness_score !== undefined
-          ? Math.round(s.readiness_score)
-          : null;
-        let status = 'Active Prep';
-        if (score !== null) {
-          if (score >= 70) status = 'Placement Ready';
-          else if (score < 50) status = 'Needs Intervention';
-        } else {
-          status = 'Unassessed';
-        }
+      const rows = students.length > 0
+        ? students.map((s) => {
+            const score = s.readiness_score !== null && s.readiness_score !== undefined
+              ? Math.round(s.readiness_score)
+              : null;
+            let status = 'Active Prep';
+            if (score !== null) {
+              if (score >= 70) status = 'Placement Ready';
+              else if (score < 50) status = 'Needs Intervention';
+            } else {
+              status = 'Unassessed';
+            }
 
-        return [
-          sanitizeCSV(s.full_name),
-          sanitizeCSV(s.roll_number),
-          sanitizeCSV(s.branch),
-          sanitizeCSV(s.batch_year),
-          sanitizeCSV(s.target_role_name || 'Unassigned'),
-          sanitizeCSV(score !== null ? `${score}%` : 'Not Assessed'),
-          sanitizeCSV(status),
-        ].join(',');
-      });
+            return formatCSVRow([
+              s.full_name,
+              s.roll_number,
+              s.branch,
+              s.batch_year,
+              s.target_role_name || 'Unassigned',
+              score !== null ? `${score}%` : 'Not Assessed',
+              status,
+            ], 'N/A');
+          })
+        : [formatCSVRow(['(No student records found)', 'N/A', branch || 'N/A', batch_year || 'N/A', 'N/A', 'N/A', 'N/A'])];
 
       const csvContent = [headers.join(','), ...rows].join('\r\n');
       const filename = `cohort_roster_${branch || 'all'}_${batch_year || 'all'}.csv`;
@@ -284,52 +272,55 @@ const FacultyController = {
         FacultyService.getAnalyticsSkillGaps(profile.id, profile.is_tpo, batchYearInt, branch || null, null),
       ]);
 
-      const sanitize = (v) => {
-        if (v === null || v === undefined) return '';
-        const s = String(v).trim();
-        const safe = /^[=+@-]/.test(s) ? `'${s}` : s;
-        return (safe.includes(',') || safe.includes('"') || safe.includes('\n'))
-          ? `"${safe.replace(/"/g, '""')}"` : safe;
-      };
+      const safeScope = sanitizeCSVCell(branch || 'All branches');
+      const safeBatch = sanitizeCSVCell(batch_year || 'All batches');
+
+      const roleRows = (roleDistrib && roleDistrib.length > 0)
+        ? roleDistrib.map(r => formatCSVRow([
+            r.role_name,
+            r.student_count,
+            r.avg_readiness !== null && r.avg_readiness !== undefined ? Math.round(r.avg_readiness) : 'N/A',
+          ]))
+        : [formatCSVRow(['(No roles recorded)', 0, 'N/A'])];
+
+      const skillGapRows = (skillGaps && skillGaps.length > 0)
+        ? skillGaps.map(sg => formatCSVRow([
+            sg.skill_name,
+            sg.role_name,
+            sg.required_level,
+            sg.baseline_beginner,
+            sg.baseline_intermediate,
+            sg.baseline_proficient,
+            sg.baseline_not_sure,
+            sg.baseline_missing,
+            sg.has_assessment,
+            sg.avg_diagnostic_score !== null && sg.avg_diagnostic_score !== undefined ? Math.round(sg.avg_diagnostic_score) : 'N/A',
+            sg.gap_critical,
+          ]))
+        : [formatCSVRow(['(No skill gaps recorded)', 'N/A', 'N/A', 0, 0, 0, 0, 0, 0, 'N/A', 0])];
 
       const lines = [
         `Placement Readiness Analytics Export`,
         `Generated: ${new Date().toISOString()}`,
-        `Scope: ${branch || 'All branches'} | Batch: ${batch_year || 'All batches'}`,
+        `Scope: ${safeScope} | Batch: ${safeBatch}`,
         ``,
         `OVERVIEW METRICS`,
-        `Total Students,${overview.total_students}`,
-        `Students with Target Role,${overview.students_with_role}`,
-        `Students with Skill Baseline,${overview.students_with_baseline}`,
-        `Students with Diagnostic Assessment,${overview.students_with_assessment}`,
-        `Total Learning Tasks Completed,${overview.total_tasks_completed}`,
-        `Evidence Pending Review,${overview.evidence_pending_review}`,
-        `Evidence Needing Revision,${overview.evidence_needs_revision}`,
-        `Average Readiness Score,${overview.avg_readiness_score !== null ? `${Math.round(overview.avg_readiness_score)}%` : 'N/A'}`,
+        formatCSVRow(['Total Students', overview?.total_students ?? 0]),
+        formatCSVRow(['Students with Target Role', overview?.students_with_role ?? 0]),
+        formatCSVRow(['Students with Skill Baseline', overview?.students_with_baseline ?? 0]),
+        formatCSVRow(['Students with Diagnostic Assessment', overview?.students_with_assessment ?? 0]),
+        formatCSVRow(['Total Learning Tasks Completed', overview?.total_tasks_completed ?? 0]),
+        formatCSVRow(['Evidence Pending Review', overview?.evidence_pending_review ?? 0]),
+        formatCSVRow(['Evidence Needing Revision', overview?.evidence_needs_revision ?? 0]),
+        formatCSVRow(['Average Readiness Score', overview?.avg_readiness_score !== null && overview?.avg_readiness_score !== undefined ? `${Math.round(overview.avg_readiness_score)}%` : 'N/A']),
         ``,
         `ROLE DISTRIBUTION`,
         `Role Name,Student Count,Avg Readiness (%)`,
-        ...roleDistrib.map(r => [
-          sanitize(r.role_name),
-          sanitize(r.student_count),
-          sanitize(r.avg_readiness !== null ? Math.round(r.avg_readiness) : 'N/A'),
-        ].join(',')),
+        ...roleRows,
         ``,
         `SKILL GAP HEATMAP (Self-Reported)`,
         `Skill,Role,Required Level,Beginner,Intermediate,Proficient,Not Sure,No Baseline,Has Assessment,Avg Diagnostic Score,Critical Gaps`,
-        ...skillGaps.map(sg => [
-          sanitize(sg.skill_name),
-          sanitize(sg.role_name),
-          sanitize(sg.required_level),
-          sanitize(sg.baseline_beginner),
-          sanitize(sg.baseline_intermediate),
-          sanitize(sg.baseline_proficient),
-          sanitize(sg.baseline_not_sure),
-          sanitize(sg.baseline_missing),
-          sanitize(sg.has_assessment),
-          sanitize(sg.avg_diagnostic_score !== null ? Math.round(sg.avg_diagnostic_score) : 'N/A'),
-          sanitize(sg.gap_critical),
-        ].join(',')),
+        ...skillGapRows,
       ];
 
       const csvContent = lines.join('\r\n');
